@@ -70,6 +70,7 @@ class Grid():
             row = []
             for j in range(width):
                 row.append(Node(i, j))
+            self.cells.append(row)
 
     def get_neigbours(self, node: Node) -> set:
         """
