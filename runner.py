@@ -38,6 +38,7 @@ def main():
 
     # Initialise the grid
     grid = Grid(HEIGHT, WIDTH)
+    cells = grid.cells
 
     # Show instructions initially
     instructions = True
@@ -83,6 +84,7 @@ def main():
             # Check button input
             click, _, _ = pygame.mouse.get_pressed()
             if click == 1:
+                print("pressed")
                 mouse = pygame.mouse.get_pos()
                 if button_rect.collidepoint(mouse):
                     instructions = False
@@ -92,21 +94,11 @@ def main():
             continue
 
         # Draw the board
-        cells = []
-        for i in range(HEIGHT):
-            row = []
-            for j in range(WIDTH):
-
-                # Draw the cell
-                rect = pygame.Rect(
-                    board_origin[0] + j * cell_size,
-                    board_origin[1] + i * cell_size,
-                    cell_size, cell_size
-                )
-                pygame.draw.rect(screen, BLACK, rect, 1)
-
-                row.append(rect)
-            cells.append(row)
+        for row in cells:
+            for cell in row:
+                i = cell.i
+                j = cell.j
+                cell.draw(i, j, board_origin, cell_size, screen)
 
         # Add blocked cells
         left, _, right = pygame.mouse.get_pressed()
