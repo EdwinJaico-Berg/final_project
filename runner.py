@@ -32,9 +32,11 @@ def main():
     cell_size = int(min(board_width / WIDTH, board_height / HEIGHT))
     board_origin = (BOARD_PADDING, BOARD_PADDING)
 
-    # Add the flag and start image
+    # Add the flag (end) and pin (start) image
     pin = pygame.image.load("assets/images/pin.jpeg")
     pin = pygame.transform.scale(pin, (cell_size, cell_size))
+    flag = pygame.image.load("assets/images/flag.png")
+    flag = pygame.transform.scale(flag, (cell_size, cell_size))
 
     # Initialise the grid
     grid = Grid(HEIGHT, WIDTH)
@@ -84,7 +86,6 @@ def main():
             # Check button input
             click, _, _ = pygame.mouse.get_pressed()
             if click == 1:
-                print("pressed")
                 mouse = pygame.mouse.get_pos()
                 if button_rect.collidepoint(mouse):
                     instructions = False
@@ -95,28 +96,31 @@ def main():
 
         # Draw the board
         for row in cells:
-            for cell in row:
-                i = cell.i
-                j = cell.j
-                cell.draw(i, j, board_origin, cell_size, screen)
+            for node in row:
+                i = node.i
+                j = node.j
+                node.draw(i, j, board_origin, cell_size, screen)
+
+                if node.obstruction:
+                    pygame.draw.rect(screen, BLACK, node.rect)
+                if node.start:
+                    screen.blit(pin, node.rect)
+                if node.end:
+                    screen.blit(flag, node.rect)
 
         # Add blocked cells
         left, _, right = pygame.mouse.get_pressed()
 
         if left == 1:
+                
             mouse = pygame.mouse.get_pos()
             for i in range(HEIGHT):
                 for j in range(WIDTH):
-                    if cells[i][j].collidepoint(mouse):
-                        # Draw the cell
-                        rect = pygame.Rect(
-                            board_origin[0] + j * cell_size,
-                            board_origin[1] + i * cell_size,
-                            cell_size, cell_size
-                        )
-                        pygame.draw.rect(screen, BLACK, rect)
-                        pygame.display.update()
-
+                    node = cells[i][j]
+                    if node.rect.collidepoint(mouse):
+                        # Marks the node as an obstruction
+                        node.obstruction = True
+                    
         pygame.display.flip()
 
 
