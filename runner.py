@@ -1,6 +1,7 @@
 import pygame
 import sys
 import time
+import math
 
 from pathfinder import Node, Grid
 
@@ -75,6 +76,7 @@ def main():
     end = True
     barriers = True
     search = True
+    found = True
 
     while True:
 
@@ -284,7 +286,115 @@ def main():
             pygame.draw.rect(screen, WHITE, reset_button)
             screen.blit(reset_button_text, reset_button_rect)
             
-            grid.asearch()
+            # Append the starting node to the open list
+            grid.open.append(grid.start)
+
+            # Find min f value while the list is not empty
+            while len(grid.open) > 0:
+                current = None
+                min_f = math.inf
+                for index, node in enumerate(grid.open):
+                    if node.f < min_f:
+                        min_f = node.f
+                        current = node
+                        current_index = index
+                
+                # Pop q off the list
+                grid.open.pop(current_index)
+                grid.closed.append(current)
+
+                # Check current node is the goal
+                if current == grid.end:
+
+                    print("Found")
+
+                    # Assign the nodes the path variable
+                    while current is not None:
+                        current.path = True
+                        current = current.parent
+                    search = False
+                    break
+
+                # Generate the neighbours
+                neighbours = grid.get_neigbours(current)
+                
+                for neighbour in neighbours:
+
+                    # Set a parent
+                    neighbour.parent = current
+                    
+                    # Check whether neighbour has been searched
+                    for closed_neighbour in grid.closed:
+                        if neighbour == closed_neighbour:
+                            continue
+
+                    # Calculate the heuristic values
+                    grid.heuristics(neighbour.parent, neighbour)
+
+                    # Check if neighbour already on the open list
+                    for open_neighbour in grid.open:
+                        if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
+                            continue
+
+                    grid.open.append(neighbour)            
+
+                # Draw the board
+                for row in cells:
+                    for node in row:
+                        i = node.i
+                        j = node.j
+                        node.draw(i, j, board_origin, cell_size, screen)
+
+                        if node.obstruction:
+                            node.fill(screen, WHITE)
+                        elif node.start:
+                            screen.blit(pin, node.rect)
+                        elif node.end:
+                            screen.blit(flag, node.rect)
+                        elif node in grid.open:
+                            node.fill(screen, GREEN)
+                        elif node in grid.closed:
+                            node.fill(screen, RED)
+
+                pygame.display.update()
+
+                # Check reset button pressed
+                left, _, right = pygame.mouse.get_pressed()
+
+                if left == 1:
+                    mouse = pygame.mouse.get_pos()
+
+                    if reset_button.collidepoint(mouse):
+
+                        # Re-initialise all the variables
+                        grid = Grid(HEIGHT, WIDTH)
+                        cells = grid.cells
+                        start = True
+                        end = True
+                        barriers = True
+
+
+
+        # Once the node has been found
+        elif found:
+            
+            # Write instructions
+            instruction = medium_font.render("Path Found!", True, WHITE)
+            instruction_rect = instruction.get_rect()
+            instruction_rect.center = ((width / 3), 50)
+            screen.blit(instruction, instruction_rect)
+
+            # Reset button
+            reset_button = pygame.Rect(
+                (width * (1 / 2)) + BOARD_PADDING + 30, 30,
+                100, 40 
+            )
+            reset_button_text = medium_font.render("Reset", True, BLACK)
+            reset_button_rect = reset_button_text.get_rect()
+            reset_button_rect.center = reset_button.center
+            pygame.draw.rect(screen, WHITE, reset_button)
+            screen.blit(reset_button_text, reset_button_rect)
+            
 
             # Draw the board
             for row in cells:
@@ -299,29 +409,14 @@ def main():
                         screen.blit(pin, node.rect)
                     elif node.end:
                         screen.blit(flag, node.rect)
+                    elif node.path:
+                        node.fill(screen, BLUE)
                     elif node in grid.open:
                         node.fill(screen, GREEN)
                     elif node in grid.closed:
                         node.fill(screen, RED)
 
-            # Check reset button pressed
-            left, _, right = pygame.mouse.get_pressed()
-
-            if left == 1:
-                mouse = pygame.mouse.get_pos()
-
-                if reset_button.collidepoint(mouse):
-
-                    # Re-initialise all the variables
-                    grid = Grid(HEIGHT, WIDTH)
-                    cells = grid.cells
-                    start = True
-                    end = True
-                    barriers = True
-                    
         pygame.display.flip()
-
-
 
 
 if __name__ == "__main__":

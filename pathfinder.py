@@ -29,6 +29,7 @@ class Node():
 
         # Variable for the parent node
         self.parent = None
+        self.path = False
 
         # Give the node a rect variable so that it can interact
         self.rect = None
@@ -113,7 +114,7 @@ class Grid():
         for the g and h values
         """
         node.g = parent.g + math.sqrt((abs(parent.i - node.i)) + (abs(parent.j - node.j)))
-        node.h = math.sqrt((abs(self.end.i - node.i)) + (abs(self.end.j) - abs(node.j)))
+        node.h = math.sqrt((abs(self.end.i - node.i)) + (abs(self.end.j - node.j)))
         node.f = node.g + node.h
 
     
