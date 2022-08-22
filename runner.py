@@ -1,4 +1,3 @@
-from email.header import Header
 import pygame
 import sys
 import time
@@ -6,6 +5,24 @@ import time
 from pathfinder import Node, Grid, PathFindingAI
 
 def main():
+
+    # Check usage
+    if len(sys.argv) != 2:
+        sys.exit("Usage: python runner.py algorithm")
+
+    algorithms = [
+        "a*",
+        "djikstra",
+        "bfs",
+        "dfs",
+        "breadth first search",
+        "depth first search"
+    ]
+
+    # Parse the command line arguments:
+    algorithm = sys.argv[1]
+    if algorithm.lower() not in algorithms:
+        sys.exit("This algorithm has not been implemented yet")
     
     # Initialise variables
     HEIGHT = 25
@@ -69,7 +86,7 @@ def main():
             # Description
             description = [
                 "You get to choose the start and end point of the pathfinder",
-                "Using the A* pathfinding algorithm,", 
+                f"Using the {algorithm} pathfinding algorithm,", 
                 "the shortest path will be calculated"
             ]
             for i, sentence in enumerate(description):
@@ -106,16 +123,12 @@ def main():
             # Draw the board
             for row in cells:
                 for node in row:
+
+                    # No need to check for obstructions / end point
+                    # as these will only be added later
                     i = node.i
                     j = node.j
                     node.draw(i, j, board_origin, cell_size, screen)
-
-                    if node.obstruction:
-                        pygame.draw.rect(screen, BLACK, node.rect)
-                    if node.start:
-                        screen.blit(pin, node.rect)
-                    if node.end:
-                        screen.blit(flag, node.rect)
             
             # Add blocked cells
             left, _, right = pygame.mouse.get_pressed()
@@ -128,6 +141,7 @@ def main():
                         if node.rect.collidepoint(mouse):
                             # Marks the node as start
                             node.start = True
+                            grid.start = node
                             start = False
                             time.sleep(0.3)
         
@@ -147,12 +161,9 @@ def main():
                     j = node.j
                     node.draw(i, j, board_origin, cell_size, screen)
 
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
+                    # Add the start node
                     if node.start:
                         screen.blit(pin, node.rect)
-                    if node.end:
-                        screen.blit(flag, node.rect)
             
             # Add blocked cells
             left, _, right = pygame.mouse.get_pressed()
@@ -165,6 +176,7 @@ def main():
                         if node.rect.collidepoint(mouse):
                             # Marks the node as start
                             node.end = True
+                            grid.end = node
                             end = False
                             time.sleep(0.3)
         
@@ -208,7 +220,7 @@ def main():
                     node.draw(i, j, board_origin, cell_size, screen)
 
                     if node.obstruction:
-                        pygame.draw.rect(screen, WHITE, node.rect)
+                        node.fill(screen, WHITE)
                     if node.start:
                         screen.blit(pin, node.rect)
                     if node.end:

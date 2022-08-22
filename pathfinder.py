@@ -79,6 +79,9 @@ class Grid():
                 row.append(Node(i, j))
             self.cells.append(row)
 
+        self.start = None
+        self.end = None
+
     def get_neigbours(self, node: Node) -> set:
         """
         Returns a set of nodes that are 
@@ -100,16 +103,5 @@ class Grid():
 
         return neighbours
 
-
-
-
-class PathFindingAI():
-    """
-    Pathfinding agent
-    """
-
-    def __init__(self, height: int=25, width: int=25):
-        
-        # Set initial height and width
-        self.height = height
-        self.width = width
+    def asearch():
+        raise NotImplementedError
