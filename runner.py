@@ -37,6 +37,9 @@ def main():
     BLACK = (0, 0, 0)
     GRAY = (180, 180, 180)
     WHITE = (255, 255, 255)
+    GREEN = (0, 255, 0)
+    RED = (255, 0, 0)
+    BLUE = (0, 0, 255)
 
     # Create game
     pygame.init()
@@ -71,6 +74,7 @@ def main():
     start = True
     end = True
     barriers = True
+    search = True
 
     while True:
 
@@ -137,7 +141,7 @@ def main():
                     j = node.j
                     node.draw(i, j, board_origin, cell_size, screen)
             
-            # Add blocked cells
+            # Add start node
             left, _, right = pygame.mouse.get_pressed()
 
             if left == 1:
@@ -172,7 +176,7 @@ def main():
                     if node.start:
                         screen.blit(pin, node.rect)
             
-            # Add blocked cells
+            # Add end node
             left, _, right = pygame.mouse.get_pressed()
 
             if right == 1:
@@ -228,12 +232,12 @@ def main():
 
                     if node.obstruction:
                         node.fill(screen, WHITE)
-                    if node.start:
+                    elif node.start:
                         screen.blit(pin, node.rect)
-                    if node.end:
+                    elif node.end:
                         screen.blit(flag, node.rect)
 
-            # Add blocked cells
+            # Check buttons or grid pressed
             left, _, right = pygame.mouse.get_pressed()
 
             if left == 1:
@@ -241,7 +245,9 @@ def main():
                 
                 # If search button is clicked, start the search
                 if search_button.collidepoint(mouse):
-                    raise NotImplementedError
+                    barriers = False
+                    time.sleep(0.3)
+                    
                 elif reset_button.collidepoint(mouse):
 
                     # Re-initialise all the variables
@@ -257,6 +263,61 @@ def main():
                             if node.rect.collidepoint(mouse):
                                 # Marks the node as an obstruction
                                 node.obstruction = True
+        
+        # Show search
+        elif search:
+            
+            # Write instructions
+            instruction = medium_font.render("Searching...", True, WHITE)
+            instruction_rect = instruction.get_rect()
+            instruction_rect.center = ((width / 3), 50)
+            screen.blit(instruction, instruction_rect)
+
+            # Reset button
+            reset_button = pygame.Rect(
+                (width * (1 / 2)) + BOARD_PADDING + 30, 30,
+                100, 40 
+            )
+            reset_button_text = medium_font.render("Reset", True, BLACK)
+            reset_button_rect = reset_button_text.get_rect()
+            reset_button_rect.center = reset_button.center
+            pygame.draw.rect(screen, WHITE, reset_button)
+            screen.blit(reset_button_text, reset_button_rect)
+            
+            grid.asearch()
+
+            # Draw the board
+            for row in cells:
+                for node in row:
+                    i = node.i
+                    j = node.j
+                    node.draw(i, j, board_origin, cell_size, screen)
+
+                    if node.obstruction:
+                        node.fill(screen, WHITE)
+                    elif node.start:
+                        screen.blit(pin, node.rect)
+                    elif node.end:
+                        screen.blit(flag, node.rect)
+                    elif node in grid.open:
+                        node.fill(screen, GREEN)
+                    elif node in grid.closed:
+                        node.fill(screen, RED)
+
+            # Check reset button pressed
+            left, _, right = pygame.mouse.get_pressed()
+
+            if left == 1:
+                mouse = pygame.mouse.get_pos()
+
+                if reset_button.collidepoint(mouse):
+
+                    # Re-initialise all the variables
+                    grid = Grid(HEIGHT, WIDTH)
+                    cells = grid.cells
+                    start = True
+                    end = True
+                    barriers = True
                     
         pygame.display.flip()
 
