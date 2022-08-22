@@ -291,11 +291,12 @@ def main():
 
             # Find min f value while the list is not empty
             while len(grid.open) > 0:
-                current = None
-                min_f = math.inf
+                
+                # Set the current node
+                current = grid.open[0]
+                current_index = 0
                 for index, node in enumerate(grid.open):
-                    if node.f < min_f:
-                        min_f = node.f
+                    if node.f < current.f:
                         current = node
                         current_index = index
                 
@@ -356,7 +357,6 @@ def main():
                         elif node in grid.closed:
                             node.fill(screen, RED)
 
-                pygame.display.update()
 
                 # Check reset button pressed
                 left, _, right = pygame.mouse.get_pressed()
@@ -373,6 +373,7 @@ def main():
                         end = True
                         barriers = True
 
+                pygame.display.update()
 
 
         # Once the node has been found

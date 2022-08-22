@@ -86,7 +86,7 @@ class Grid():
         self.open = []
         self.closed = []
 
-    def get_neigbours(self, node: Node) -> set:
+    def get_neigbours(self, node: Node) -> list:
         """
         Returns a set of nodes that are 
         """
@@ -102,7 +102,7 @@ class Grid():
                     neighbour = self.cells[i][j]
                     
                     # Ignore the cell itself
-                    if node != neighbour and not node.obstruction:
+                    if neighbour != node and not neighbour.obstruction:
                         neighbours.append(neighbour)
 
         return neighbours
@@ -113,8 +113,8 @@ class Grid():
         Calculate the g, h, and f values, using Eucliadian distance
         for the g and h values
         """
-        node.g = parent.g + math.sqrt((abs(parent.i - node.i)) + (abs(parent.j - node.j)))
-        node.h = math.sqrt((abs(self.end.i - node.i)) + (abs(self.end.j - node.j)))
+        node.g = parent.g + math.sqrt((abs(parent.i - node.i)) ** 2 + (abs(parent.j - node.j)) ** 2)
+        node.h = math.sqrt((abs(self.end.i - node.i)) ** 2 + (abs(self.end.j - node.j)) ** 2)
         node.f = node.g + node.h
 
     
