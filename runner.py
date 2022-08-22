@@ -75,7 +75,7 @@ def main():
             for i, sentence in enumerate(description):
                 line = small_font.render(sentence, True, WHITE)
                 line_rect = line.get_rect()
-                line_rect.center = ((width / 2), 150 + 30 * i)
+                line_rect.center = ((width / 2), 175 + 30 * i)
                 screen.blit(line, line_rect)
 
             # Start button
@@ -93,8 +93,6 @@ def main():
                 if button_rect.collidepoint(mouse):
                     instructions = False
                     time.sleep(0.3)
-
-            pygame.display.flip()
         
         # Show instructions to place start node
         elif start:
@@ -132,9 +130,6 @@ def main():
                             node.start = True
                             start = False
                             time.sleep(0.3)
-
-            pygame.display.flip()
-        
         
         # Show instructions to place end node
         elif end:
@@ -172,8 +167,6 @@ def main():
                             node.end = True
                             end = False
                             time.sleep(0.3)
-
-            pygame.display.flip()
         
         # Show instructions to draw barriers
         elif barriers:
@@ -185,7 +178,27 @@ def main():
             screen.blit(instruction, instruction_rect)
 
             # Search button
-            search_button = pygame.Rect()
+            search_button = pygame.Rect(
+                (width * (1 / 2)) + BOARD_PADDING, 30, 
+                100, 40
+            )
+            search_button_text = medium_font.render("Search", True, BLACK)
+            search_button_rect = search_button_text.get_rect()
+            search_button_rect.center = search_button.center
+            pygame.draw.rect(screen, WHITE, search_button)
+            screen.blit(search_button_text, search_button_rect)
+
+            # Reset button
+            reset_button = pygame.Rect(
+                (width * (1 / 2)) + BOARD_PADDING + 115, 30,
+                100, 40 
+            )
+            reset_button_text = medium_font.render("Reset", True, BLACK)
+            reset_button_rect = reset_button_text.get_rect()
+            reset_button_rect.center = reset_button.center
+            pygame.draw.rect(screen, WHITE, reset_button)
+            screen.blit(reset_button_text, reset_button_rect)
+            
 
             # Draw the board
             for row in cells:
@@ -206,12 +219,25 @@ def main():
 
             if left == 1:
                 mouse = pygame.mouse.get_pos()
-                for i in range(HEIGHT):
-                    for j in range(WIDTH):
-                        node = cells[i][j]
-                        if node.rect.collidepoint(mouse):
-                            # Marks the node as an obstruction
-                            node.obstruction = True
+                
+                # If search button is clicked, start the search
+                if search_button.collidepoint(mouse):
+                    raise NotImplementedError
+                elif reset_button.collidepoint(mouse):
+
+                    # Re-initialise all the variables
+                    grid = Grid(HEIGHT, WIDTH)
+                    cells = grid.cells
+                    start = True
+                    end = True
+                    barriers = True
+                else:
+                    for i in range(HEIGHT):
+                        for j in range(WIDTH):
+                            node = cells[i][j]
+                            if node.rect.collidepoint(mouse):
+                                # Marks the node as an obstruction
+                                node.obstruction = True
                     
         pygame.display.flip()
 
