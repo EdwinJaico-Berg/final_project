@@ -1,23 +1,24 @@
 import pygame
 import sys
 import time
-import math
 
 from pathfinder import Node, Grid
 
 def main():
-
-    algorithms = [
-        "a*",
-        "djikstra",
-        "bfs",
-        "dfs",
-        "breadth first search",
-        "depth first search"
-    ]
+    
+    # Initialise algorithm variables
+    algorithm = ""
+    algorithms = {
+        "a*": "asearch",
+        "djikstra": "djikstra",
+        "bfs": "bfs",
+        "dfs": "dfs",
+        "breadth first search": "bfs",
+        "depth first search": "dfs"
+    }
 
     # Check usage
-    if len(sys.argv) == 2:
+    if len(sys.argv) in [2, 3]:
 
         # Parse the command line arguments:
         algorithm = sys.argv[1]
@@ -27,9 +28,9 @@ def main():
     else:
 
         # Use a* as default algorithm but print usage
-        algorithm = "A*"
+        algorithm = "A*".lower()
         print("-------------------------------------------")
-        print("Suggested Usage: python runner.py algorithm")
+        print("Suggested Usage: python runner.py algorithm maze")
         print("-------------------------------------------")
 
     # Initialise variables
@@ -279,11 +280,28 @@ def main():
             screen.blit(instruction, instruction_rect)
             
             # Start A* search
-            if grid.asearch(board_origin, cell_size, screen, pin, flag):
-                search = False
-                found = True
-            else:
-                search = False
+            if algorithms[algorithm] == "asearch":
+                if grid.asearch(board_origin, cell_size, screen, pin, flag):
+                    search = False
+                    found = True
+                else:
+                    search = False
+            if algorithms[algorithm] == "djikstra":
+                if grid.djikstra():
+                    search = False
+                    found = True
+                else:
+                    search = False
+            if algorithms[algorithm] == "bfs":
+                if grid.bfs():
+                    search = False
+                    found = True
+            if algorithms[algorithm] == "dfs":
+                if grid.dfs():
+                    search = False
+                    found = True
+                else:
+                    search = False
 
 
         # Once the node has been found

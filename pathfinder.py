@@ -158,22 +158,22 @@ class Grid():
             
             for neighbour in neighbours:
 
-                # Assign parent
-                neighbour.parent = current
-
                 # Check whether neighbour has been searched
                 if neighbour in self.closed:
                     continue
 
                 # Calculate the heuristic values
-                self.heuristics(neighbour.parent, neighbour)
+                self.heuristics(current, neighbour)
 
                 # Check if neighbour already on the open list
                 for open_neighbour in self.open:
                     if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
                         continue
-
+                
                 self.open.append(neighbour)            
+
+                # Assign parent
+                neighbour.parent = current
 
             # Draw the board
             for row in self.cells:
