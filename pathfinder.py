@@ -203,9 +203,60 @@ class Grid():
         raise NotImplementedError
     
     
-    def bfs(self):
-        raise NotImplementedError
-    
+    def bfs(self, board_origin, cell_size, screen, pin, flag):
+        """
+        Breadth first search algorithm, using the open and closed list
+        as the queue and visited list
+        """
+        visited = self.closed
+        queue = self.open
+
+        # Add the starting node to the visited and queue
+        visited.append(self.start)
+        queue.append(self.start)
+
+        while queue:
+            
+            # Pop the first element in the queue
+            current = queue.pop(0)
+
+            # Get the nodes neighbours
+            neighbours = self.get_neigbours(current)
+
+            for neighbour in neighbours:
+                
+                # Set the parent of the node
+                if not neighbour.parent:
+                    neighbour.parent = current
+
+                # Check whether the neighbour is the end
+                if neighbour == self.end:
+                    return True
+                elif neighbour not in visited:
+                    visited.append(neighbour)
+                    queue.append(neighbour)
+
+            # Draw the board
+            for row in self.cells:
+                for node in row:
+                    i = node.i
+                    j = node.j
+                    node.draw(i, j, board_origin, cell_size, screen)
+
+                    if node.obstruction:
+                        node.fill(screen, WHITE)
+                    elif node.start:
+                        screen.blit(pin, node.rect)
+                    elif node.end:
+                        screen.blit(flag, node.rect)
+                    elif node in self.open:
+                        node.fill(screen, GREEN)
+                    elif node in self.closed:
+                        node.fill(screen, RED)
+
+            pygame.display.update()
+
+        return False
     
     def dfs(self):
         raise NotImplementedError

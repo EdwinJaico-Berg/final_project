@@ -81,6 +81,7 @@ def main():
     barriers = True
     search = True
     found = False
+    path = False
 
     while True:
 
@@ -192,10 +193,11 @@ def main():
                         node = cells[i][j]
                         if node.rect.collidepoint(mouse):
                             # Marks the node as start
-                            node.end = True
-                            grid.end = node
-                            end = False
-                            time.sleep(0.3)
+                            if not node.start:
+                                node.end = True
+                                grid.end = node
+                                end = False
+                                time.sleep(0.3)
         
         # Show instructions to draw barriers
         elif barriers:
@@ -287,6 +289,7 @@ def main():
             if algo == "asearch":
                 if grid.asearch(board_origin, cell_size, screen, pin, flag):
                     found = True
+                    path = True
                     search = False
                 else:
                     search = False
@@ -295,12 +298,13 @@ def main():
                     search = False
                     found = True
                 else:
-                    not_found = True
                     search = False
             if algo == "bfs":
-                if grid.bfs():
+                if grid.bfs(board_origin, cell_size, screen, pin, flag):
                     search = False
                     found = True
+                else:
+                    search = False
             if algo == "dfs":
                 if grid.dfs():
                     search = False
@@ -330,7 +334,8 @@ def main():
             screen.blit(reset_button_text, reset_button_rect)
             
             # Draw the path
-            grid.find_path()
+            if path:
+                grid.find_path()
 
             # Draw the board
             for row in cells:
