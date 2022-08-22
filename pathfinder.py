@@ -2,8 +2,9 @@ import pygame
 import math
 
 BLACK = (0, 0, 0)
-GRAY = (180, 180, 180)
 WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 
 class Node():
     """
@@ -119,7 +120,7 @@ class Grid():
 
     
     
-    def asearch(self) -> bool:
+    def asearch(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
         This will perform the A* Search algorithm.
         Usually the open and closed list need to be initialised
@@ -131,20 +132,25 @@ class Grid():
 
         # Find min f value while the list is not empty
         while len(self.open) > 0:
-            current = None
-            min_f = math.inf
+            
+            # Set the current node to the node with the smallest f value
+            current = self.open[0]
+            current_index = 0
             for index, node in enumerate(self.open):
-                if node.f < min_f:
-                    min_f = node.f
+                if node.f < current.f:
                     current = node
                     current_index = index
             
-            # Pop q off the list
+            # Remove current from the grid.open
             self.open.pop(current_index)
+
+            # Append current to grid.closed
             self.closed.append(current)
 
             # Check current node is the goal
             if current == self.end:
+                
+                # Break while loop
                 return True
 
             # Generate the neighbours
@@ -152,13 +158,12 @@ class Grid():
             
             for neighbour in neighbours:
 
-                # Set a parent
+                # Assign parent
                 neighbour.parent = current
-                
+
                 # Check whether neighbour has been searched
-                for closed_neighbour in self.closed:
-                    if neighbour == closed_neighbour:
-                        continue
+                if neighbour in self.closed:
+                    continue
 
                 # Calculate the heuristic values
                 self.heuristics(neighbour.parent, neighbour)
@@ -168,4 +173,27 @@ class Grid():
                     if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
                         continue
 
-                self.open.append(neighbour)
+                self.open.append(neighbour)            
+
+            # Draw the board
+            for row in self.cells:
+                for node in row:
+                    i = node.i
+                    j = node.j
+                    node.draw(i, j, board_origin, cell_size, screen)
+
+                    if node.obstruction:
+                        node.fill(screen, WHITE)
+                    elif node.start:
+                        screen.blit(pin, node.rect)
+                    elif node.end:
+                        screen.blit(flag, node.rect)
+                    elif node in self.open:
+                        node.fill(screen, GREEN)
+                    elif node in self.closed:
+                        node.fill(screen, RED)
+
+            pygame.display.update()
+
+        # If open no longer has nodes
+        return False

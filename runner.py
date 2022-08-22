@@ -278,78 +278,12 @@ def main():
             instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
             
-            # Append the starting node to the open list
-            grid.open.append(grid.start)
-
-            # Find min f value while the list is not empty
-            while len(grid.open) > 0:
-                
-                # Set the current node to the node with the smallest f value
-                current = grid.open[0]
-                current_index = 0
-                for index, node in enumerate(grid.open):
-                    if node.f < current.f:
-                        current = node
-                        current_index = index
-                
-                # Remove current from the grid.open
-                grid.open.pop(current_index)
-
-                # Append current to grid.closed
-                grid.closed.append(current)
-
-                # Check current node is the goal
-                if current == grid.end:
-                    
-                    # Break while loop initiate found
-                    search = False
-                    found = True
-                    break
-
-                # Generate the neighbours
-                neighbours = grid.get_neigbours(current)
-                
-                for neighbour in neighbours:
-
-                    # Assign parent
-                    neighbour.parent = current
-
-                    # Check whether neighbour has been searched
-                    if neighbour in grid.closed:
-                        continue
-
-                    # Calculate the heuristic values
-                    grid.heuristics(neighbour.parent, neighbour)
-
-                    # Check if neighbour already on the open list
-                    for open_neighbour in grid.open:
-                        if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
-                            continue
-
-                    grid.open.append(neighbour)            
-
-                # Draw the board
-                for row in cells:
-                    for node in row:
-                        i = node.i
-                        j = node.j
-                        node.draw(i, j, board_origin, cell_size, screen)
-
-                        if node.obstruction:
-                            node.fill(screen, WHITE)
-                        elif node.start:
-                            screen.blit(pin, node.rect)
-                        elif node.end:
-                            screen.blit(flag, node.rect)
-                        elif node in grid.open:
-                            node.fill(screen, GREEN)
-                        elif node in grid.closed:
-                            node.fill(screen, RED)
-
-                pygame.display.update()
-
-            # If open is no longer > 0
-            search = False
+            # Start A* search
+            if grid.asearch(board_origin, cell_size, screen, pin, flag):
+                search = False
+                found = True
+            else:
+                search = False
 
 
         # Once the node has been found
