@@ -306,7 +306,7 @@ def main():
                 else:
                     search = False
             if algo == "dfs":
-                if grid.dfs():
+                if grid.dfs(board_origin, cell_size, screen, pin, flag):
                     search = False
                     found = True
                 else:

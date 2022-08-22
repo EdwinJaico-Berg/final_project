@@ -258,8 +258,66 @@ class Grid():
 
         return False
     
-    def dfs(self):
-        raise NotImplementedError
+    def dfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
+        """
+        Depth-First Search where the set of visited is self.closed
+        and the stack is self.open
+        """
+        # Initialise visited and stack
+        visited = self.closed
+        stack = self.open
+
+        # Append the start node to the stack
+        stack.append(self.start)
+
+
+        while stack:
+            
+            # Pop the element from the stack and append it to the visited
+            current = stack.pop(0)
+
+            if current == self.end:
+                return True
+            visited.append(current)
+
+            # Get the stack values
+            neighbours = self.get_neigbours(current)
+            
+            # Make sure no duplicate nodes
+            remove = []
+            for index, neighbour in enumerate(neighbours):
+                if neighbour in stack:
+                    remove.append(index)
+            
+            for index in remove:
+                del neighbours[index]
+
+            # Add the cleaned node list to the stack
+            stack = neighbours + stack
+
+            visited.append(stack[0])
+
+            # Draw the board
+            for row in self.cells:
+                for node in row:
+                    i = node.i
+                    j = node.j
+                    node.draw(i, j, board_origin, cell_size, screen)
+
+                    if node.obstruction:
+                        node.fill(screen, WHITE)
+                    elif node.start:
+                        screen.blit(pin, node.rect)
+                    elif node.end:
+                        screen.blit(flag, node.rect)
+                    elif node in self.open:
+                        node.fill(screen, GREEN)
+                    elif node in self.closed:
+                        node.fill(screen, RED)
+
+            pygame.display.update()
+
+        return False
 
 
     def find_path(self) -> None:
