@@ -28,9 +28,9 @@ def main():
 
         # Use a* as default algorithm but print usage
         algorithm = "A*"
-        print("===========================================")
+        print("-------------------------------------------")
         print("Suggested Usage: python runner.py algorithm")
-        print("===========================================")
+        print("-------------------------------------------")
 
     # Initialise variables
     HEIGHT = 25
@@ -70,7 +70,7 @@ def main():
     grid = Grid(HEIGHT, WIDTH)
     cells = grid.cells
 
-    # Set initial boundaries
+    # Set logical barriers
     instructions = True
     start = True
     end = True
