@@ -50,11 +50,11 @@ class Node():
             board_origin[1] + i * cell_size,
             cell_size, cell_size
         )
-        pygame.draw.rect(screen, BLACK, self.rect, 1)
+        pygame.draw.rect(screen, WHITE, self.rect, 1)
         
 
-    def fill(self, surface: pygame.Surface, screen: pygame.Surface):
-        pygame.draw.rect(screen, BLACK, self.rect)
+    def fill(self, screen: pygame.Surface, colour: tuple) -> None:
+        pygame.draw.rect(screen, colour, self.rect)
         
 
 
