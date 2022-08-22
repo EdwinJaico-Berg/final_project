@@ -21,11 +21,16 @@ class Node():
         self.g =  0
         self.h = 0
 
-        # Show whether the node is an obstruction or not
+        # Set the board parameters
+        self.start = False
+        self.end = False
         self.obstruction = False
 
         # Variable for the neighbours of the node
         self.neighbours = set()
+
+        # Give the node a rect variable so that it can interact
+        self.rect = None
     
     
     def __eq__(self, __o: object) -> bool:
@@ -35,20 +40,22 @@ class Node():
         )
 
     
-    def draw(self, i: int, j: int, board_origin: int, cell_size: int, screen) -> None:
+    def draw(self, i: int, j: int, board_origin: int, cell_size: int, screen: pygame.Surface) -> None:
         """
         This will draw the rect
         """
         # Draw the cell
-        rect = pygame.Rect(
+        self.rect = pygame.Rect(
             board_origin[0] + j * cell_size,
             board_origin[1] + i * cell_size,
             cell_size, cell_size
         )
-        pygame.draw.rect(screen, BLACK, rect, 1)
+        pygame.draw.rect(screen, WHITE, self.rect, 1)
+        
 
-    def fill(self):
-        raise NotImplementedError
+    def fill(self, screen: pygame.Surface, colour: tuple) -> None:
+        pygame.draw.rect(screen, colour, self.rect)
+        
 
 
 
