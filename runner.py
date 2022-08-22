@@ -76,7 +76,7 @@ def main():
     end = True
     barriers = True
     search = True
-    found = True
+    found = False
 
     while True:
 
@@ -292,7 +292,7 @@ def main():
             # Find min f value while the list is not empty
             while len(grid.open) > 0:
                 
-                # Set the current node
+                # Set the current node to the node with the smallest f value
                 current = grid.open[0]
                 current_index = 0
                 for index, node in enumerate(grid.open):
@@ -300,20 +300,18 @@ def main():
                         current = node
                         current_index = index
                 
-                # Pop q off the list
+                # Remove current from the grid.open
                 grid.open.pop(current_index)
+
+                # Append current to grid.closed
                 grid.closed.append(current)
 
                 # Check current node is the goal
                 if current == grid.end:
-
-                    print("Found")
-
-                    # Assign the nodes the path variable
-                    while current is not None:
-                        current.path = True
-                        current = current.parent
+                    
+                    # Break while loop initiate found
                     search = False
+                    found = True
                     break
 
                 # Generate the neighbours
@@ -321,13 +319,12 @@ def main():
                 
                 for neighbour in neighbours:
 
-                    # Set a parent
+                    # Assign parent
                     neighbour.parent = current
-                    
+
                     # Check whether neighbour has been searched
-                    for closed_neighbour in grid.closed:
-                        if neighbour == closed_neighbour:
-                            continue
+                    if neighbour in grid.closed:
+                        continue
 
                     # Calculate the heuristic values
                     grid.heuristics(neighbour.parent, neighbour)
@@ -357,6 +354,7 @@ def main():
                         elif node in grid.closed:
                             node.fill(screen, RED)
 
+                pygame.display.update()
 
                 # Check reset button pressed
                 left, _, right = pygame.mouse.get_pressed()
@@ -373,7 +371,8 @@ def main():
                         end = True
                         barriers = True
 
-                pygame.display.update()
+            # If open is no longer > 0
+            search = False
 
 
         # Once the node has been found
@@ -395,6 +394,13 @@ def main():
             reset_button_rect.center = reset_button.center
             pygame.draw.rect(screen, WHITE, reset_button)
             screen.blit(reset_button_text, reset_button_rect)
+
+
+            # Draw the path
+            """current = grid.end
+            while current is not None:
+                current.path = True
+                current = current.parent"""
             
 
             # Draw the board
@@ -416,6 +422,61 @@ def main():
                         node.fill(screen, GREEN)
                     elif node in grid.closed:
                         node.fill(screen, RED)
+
+            # Check reset button pressed
+                left, _, right = pygame.mouse.get_pressed()
+
+                if left == 1:
+                    mouse = pygame.mouse.get_pos()
+
+                    if reset_button.collidepoint(mouse):
+
+                        # Re-initialise all the variables
+                        grid = Grid(HEIGHT, WIDTH)
+                        cells = grid.cells
+                        start = True
+                        end = True
+                        barriers = True
+                        search = True
+
+        else:
+            # Write instructions
+            instruction = medium_font.render("No path found...", True, WHITE)
+            instruction_rect = instruction.get_rect()
+            instruction_rect.center = ((width / 3), 50)
+            screen.blit(instruction, instruction_rect)
+
+            # Reset button
+            reset_button = pygame.Rect(
+                (width * (1 / 2)) + BOARD_PADDING + 30, 30,
+                100, 40 
+            )
+            reset_button_text = medium_font.render("Reset", True, BLACK)
+            reset_button_rect = reset_button_text.get_rect()
+            reset_button_rect.center = reset_button.center
+            pygame.draw.rect(screen, WHITE, reset_button)
+            screen.blit(reset_button_text, reset_button_rect)
+
+            # Draw the board
+            for row in cells:
+                for node in row:
+                    i = node.i
+                    j = node.j
+                    node.draw(i, j, board_origin, cell_size, screen)
+
+                    if node.obstruction:
+                        node.fill(screen, WHITE)
+                    elif node.start:
+                        screen.blit(pin, node.rect)
+                    elif node.end:
+                        screen.blit(flag, node.rect)
+                    elif node.path:
+                        node.fill(screen, BLUE)
+                    elif node in grid.open:
+                        node.fill(screen, GREEN)
+                    elif node in grid.closed:
+                        node.fill(screen, RED)
+
 
         pygame.display.flip()
 

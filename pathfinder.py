@@ -113,8 +113,8 @@ class Grid():
         Calculate the g, h, and f values, using Eucliadian distance
         for the g and h values
         """
-        node.g = parent.g + math.sqrt((abs(parent.i - node.i)) ** 2 + (abs(parent.j - node.j)) ** 2)
-        node.h = math.sqrt((abs(self.end.i - node.i)) ** 2 + (abs(self.end.j - node.j)) ** 2)
+        node.g = parent.g + math.sqrt((parent.i - node.i) ** 2 + (parent.j - node.j) ** 2)
+        node.h = math.sqrt((self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2)
         node.f = node.g + node.h
 
     
