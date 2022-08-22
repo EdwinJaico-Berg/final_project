@@ -2,13 +2,9 @@ import pygame
 import sys
 import time
 
-from pathfinder import Node, Grid, PathFindingAI
+from pathfinder import Node, Grid
 
 def main():
-
-    # Check usage
-    if len(sys.argv) != 2:
-        sys.exit("Usage: python runner.py algorithm")
 
     algorithms = [
         "a*",
@@ -19,11 +15,22 @@ def main():
         "depth first search"
     ]
 
-    # Parse the command line arguments:
-    algorithm = sys.argv[1]
-    if algorithm.lower() not in algorithms:
-        sys.exit("This algorithm has not been implemented yet")
+    # Check usage
+    if len(sys.argv) == 2:
+
+        # Parse the command line arguments:
+        algorithm = sys.argv[1]
+        if algorithm.lower() not in algorithms:
+            sys.exit("This algorithm has not been implemented yet")
     
+    else:
+
+        # Use a* as default algorithm but print usage
+        algorithm = "A*"
+        print("===========================================")
+        print("Suggested Usage: python runner.py algorithm")
+        print("===========================================")
+
     # Initialise variables
     HEIGHT = 25
     WIDTH = 40
