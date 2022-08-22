@@ -114,8 +114,8 @@ class Grid():
         Calculate the g, h, and f values, using Eucliadian distance
         for the g and h values
         """
-        node.g = parent.g + math.sqrt((parent.i - node.i) ** 2 + (parent.j - node.j) ** 2)
-        node.h = math.sqrt((self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2)
+        node.g = parent.g + 1
+        node.h = (self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2
         node.f = node.g + node.h
 
     
@@ -197,3 +197,14 @@ class Grid():
 
         # If open no longer has nodes
         return False
+
+
+    def find_path(self) -> None:
+        """
+        Marks nodes as belonging to the path
+        """
+        current = self.end
+
+        while current is not None:
+            current.path = True
+            current = current.parent

@@ -28,9 +28,9 @@ def main():
 
         # Use a* as default algorithm but print usage
         algorithm = "A*"
-        print("===========================================")
+        print("-------------------------------------------")
         print("Suggested Usage: python runner.py algorithm")
-        print("===========================================")
+        print("-------------------------------------------")
 
     # Initialise variables
     HEIGHT = 25
@@ -70,7 +70,7 @@ def main():
     grid = Grid(HEIGHT, WIDTH)
     cells = grid.cells
 
-    # Set initial boundaries
+    # Set logical barriers
     instructions = True
     start = True
     end = True
@@ -305,14 +305,9 @@ def main():
             reset_button_rect.center = reset_button.center
             pygame.draw.rect(screen, WHITE, reset_button)
             screen.blit(reset_button_text, reset_button_rect)
-
-
-            # Draw the path
-            """current = grid.end
-            while current is not None:
-                current.path = True
-                current = current.parent"""
             
+            # Draw the path
+            grid.find_path()
 
             # Draw the board
             for row in cells:
