@@ -56,8 +56,6 @@ class Node():
 
     def fill(self, screen: pygame.Surface, colour: tuple) -> None:
         pygame.draw.rect(screen, colour, self.rect)
-        
-
 
 
 class Grid():
