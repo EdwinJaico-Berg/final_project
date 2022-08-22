@@ -305,14 +305,9 @@ def main():
             reset_button_rect.center = reset_button.center
             pygame.draw.rect(screen, WHITE, reset_button)
             screen.blit(reset_button_text, reset_button_rect)
-
-
-            # Draw the path
-            """current = grid.end
-            while current is not None:
-                current.path = True
-                current = current.parent"""
             
+            # Draw the path
+            grid.find_path()
 
             # Draw the board
             for row in cells:

@@ -197,3 +197,14 @@ class Grid():
 
         # If open no longer has nodes
         return False
+
+
+    def find_path(self) -> None:
+        """
+        Marks nodes as belonging to the path
+        """
+        current = self.end
+
+        while current is not None:
+            current.path = True
+            current = current.parent
