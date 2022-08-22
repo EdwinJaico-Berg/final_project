@@ -131,7 +131,7 @@ class Grid():
         self.open.append(self.start)
 
         # Find min f value while the list is not empty
-        while len(self.open) > 0:
+        while self.open:
             
             # Set the current node to the node with the smallest f value
             current = self.open[0]
@@ -197,6 +197,18 @@ class Grid():
 
         # If open no longer has nodes
         return False
+
+    
+    def djikstra(self):
+        raise NotImplementedError
+    
+    
+    def bfs(self):
+        raise NotImplementedError
+    
+    
+    def dfs(self):
+        raise NotImplementedError
 
 
     def find_path(self) -> None:
