@@ -128,7 +128,7 @@ def main():
         elif start:
             
             # Write instructions on screen
-            instruction = medium_font.render("Left click to place start node", True, WHITE)
+            instruction = medium_font.render("Place start node", True, WHITE)
             instruction_rect = instruction.get_rect()
             instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
@@ -162,7 +162,7 @@ def main():
         elif end:
             
             # Write instructions
-            instruction = medium_font.render("Right click to place end node", True, WHITE)
+            instruction = medium_font.render("Place end node", True, WHITE)
             instruction_rect = instruction.get_rect()
             instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
@@ -181,7 +181,7 @@ def main():
             # Add end node
             left, _, right = pygame.mouse.get_pressed()
 
-            if right == 1:
+            if left == 1:
                 mouse = pygame.mouse.get_pos()
                 for i in range(HEIGHT):
                     for j in range(WIDTH):
@@ -263,8 +263,11 @@ def main():
                         for j in range(WIDTH):
                             node = cells[i][j]
                             if node.rect.collidepoint(mouse):
-                                # Marks the node as an obstruction
-                                node.obstruction = True
+                                if node.start or node.end:
+                                    continue
+                                else:
+                                    # Marks the node as an obstruction
+                                    node.obstruction = True
         
         # Show search
         elif search:
@@ -272,19 +275,8 @@ def main():
             # Write instructions
             instruction = medium_font.render("Searching...", True, WHITE)
             instruction_rect = instruction.get_rect()
-            instruction_rect.center = ((width / 3), 50)
+            instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
-
-            # Reset button
-            reset_button = pygame.Rect(
-                (width * (1 / 2)) + BOARD_PADDING + 30, 30,
-                100, 40 
-            )
-            reset_button_text = medium_font.render("Reset", True, BLACK)
-            reset_button_rect = reset_button_text.get_rect()
-            reset_button_rect.center = reset_button.center
-            pygame.draw.rect(screen, WHITE, reset_button)
-            screen.blit(reset_button_text, reset_button_rect)
             
             # Append the starting node to the open list
             grid.open.append(grid.start)
@@ -356,21 +348,6 @@ def main():
 
                 pygame.display.update()
 
-                # Check reset button pressed
-                left, _, right = pygame.mouse.get_pressed()
-
-                if left == 1:
-                    mouse = pygame.mouse.get_pos()
-
-                    if reset_button.collidepoint(mouse):
-
-                        # Re-initialise all the variables
-                        grid = Grid(HEIGHT, WIDTH)
-                        cells = grid.cells
-                        start = True
-                        end = True
-                        barriers = True
-
             # If open is no longer > 0
             search = False
 
@@ -424,20 +401,20 @@ def main():
                         node.fill(screen, RED)
 
             # Check reset button pressed
-                left, _, right = pygame.mouse.get_pressed()
+            left, _, right = pygame.mouse.get_pressed()
 
-                if left == 1:
-                    mouse = pygame.mouse.get_pos()
+            if left == 1:
+                mouse = pygame.mouse.get_pos()
 
-                    if reset_button.collidepoint(mouse):
+                if reset_button.collidepoint(mouse):
 
-                        # Re-initialise all the variables
-                        grid = Grid(HEIGHT, WIDTH)
-                        cells = grid.cells
-                        start = True
-                        end = True
-                        barriers = True
-                        search = True
+                    # Re-initialise all the variables
+                    grid = Grid(HEIGHT, WIDTH)
+                    cells = grid.cells
+                    start = True
+                    end = True
+                    barriers = True
+                    search = True
 
         else:
             # Write instructions
@@ -476,6 +453,22 @@ def main():
                         node.fill(screen, GREEN)
                     elif node in grid.closed:
                         node.fill(screen, RED)
+
+            # Check reset button pressed
+            left, _, right = pygame.mouse.get_pressed()
+
+            if left == 1:
+                mouse = pygame.mouse.get_pos()
+
+                if reset_button.collidepoint(mouse):
+
+                    # Re-initialise all the variables
+                    grid = Grid(HEIGHT, WIDTH)
+                    cells = grid.cells
+                    start = True
+                    end = True
+                    barriers = True
+                    search = True
 
 
         pygame.display.flip()
