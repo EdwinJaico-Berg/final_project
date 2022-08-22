@@ -28,10 +28,10 @@ def main():
     else:
 
         # Use a* as default algorithm but print usage
-        algorithm = "A*".lower()
-        print("-------------------------------------------")
+        algorithm = "A*"
+        print("------------------------------------------------")
         print("Suggested Usage: python runner.py algorithm maze")
-        print("-------------------------------------------")
+        print("------------------------------------------------")
 
     # Initialise variables
     HEIGHT = 25
@@ -45,6 +45,9 @@ def main():
 
     # Create game
     pygame.init()
+    pygame.display.set_caption('Pathfinder')
+    icon = pygame.image.load("assets/images/icon.png")
+    pygame.display.set_icon(icon)
     size = width, height = 600, 500
     screen = pygame.display.set_mode(size)
 
@@ -94,7 +97,7 @@ def main():
             # Title
             title = large_font.render("Pathfinding Visualiser", True, WHITE)
             title_rect = title.get_rect()
-            title_rect.center = ((width / 2), 50)
+            title_rect.center = ((width / 2), 100)
             screen.blit(title, title_rect)
 
             # Description
@@ -106,7 +109,7 @@ def main():
             for i, sentence in enumerate(description):
                 line = small_font.render(sentence, True, WHITE)
                 line_rect = line.get_rect()
-                line_rect.center = ((width / 2), 175 + 30 * i)
+                line_rect.center = ((width / 2), 215 + 30 * i)
                 screen.blit(line, line_rect)
 
             # Start button
@@ -279,24 +282,26 @@ def main():
             instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
             
-            # Start A* search
-            if algorithms[algorithm] == "asearch":
+            # Start algorithm search depending on input
+            algo = algorithms[algorithm.lower()]
+            if algo == "asearch":
                 if grid.asearch(board_origin, cell_size, screen, pin, flag):
-                    search = False
                     found = True
+                    search = False
                 else:
                     search = False
-            if algorithms[algorithm] == "djikstra":
+            if algo == "djikstra":
                 if grid.djikstra():
                     search = False
                     found = True
                 else:
+                    not_found = True
                     search = False
-            if algorithms[algorithm] == "bfs":
+            if algo == "bfs":
                 if grid.bfs():
                     search = False
                     found = True
-            if algorithms[algorithm] == "dfs":
+            if algo == "dfs":
                 if grid.dfs():
                     search = False
                     found = True
@@ -305,7 +310,7 @@ def main():
 
 
         # Once the node has been found
-        elif found:
+        elif found and grid.open:
             
             # Write instructions
             instruction = medium_font.render("Path Found!", True, WHITE)
