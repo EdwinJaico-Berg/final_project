@@ -285,17 +285,15 @@ class Grid():
             
             # Make sure no duplicate nodes
             remove = []
-            for index, neighbour in enumerate(neighbours):
+            for neighbour in neighbours:
                 if neighbour in stack:
-                    remove.append(index)
+                    remove.append(neighbour)
             
-            for index in remove:
-                del neighbours[index]
+            for neighbour in remove:
+                neighbours.remove(neighbour)
 
             # Add the cleaned node list to the stack
             stack = neighbours + stack
-
-            visited.append(stack[0])
 
             # Draw the board
             for row in self.cells:
