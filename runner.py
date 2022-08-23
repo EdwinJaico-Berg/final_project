@@ -29,9 +29,9 @@ def main():
 
         # Use a* as default algorithm but print usage
         algorithm = "A*"
-        print("------------------------------------------------")
-        print("Suggested Usage: python runner.py algorithm maze")
-        print("------------------------------------------------")
+        print("-------------------------------------------")
+        print("Suggested Usage: python runner.py algorithm")
+        print("-------------------------------------------")
 
     # Initialise variables
     HEIGHT = 25
