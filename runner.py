@@ -5,7 +5,7 @@ import time
 from pathfinder import Node, Grid
 
 def main():
-    
+
     # Initialise algorithm variables
     algorithm = ""
     algorithms = {
@@ -83,6 +83,29 @@ def main():
     found = False
     path = False
 
+    # Create draw board function
+    def draw_board(cells, board_origin, cell_size, screen, grid) -> None:
+        '''Draw the rects for the nodes.'''
+        
+        for row in cells:
+            for node in row:
+                i = node.i
+                j = node.j
+                node.draw(i, j, board_origin, cell_size, screen)
+
+                if node.obstruction:
+                    node.fill(screen, WHITE)
+                elif node.start:
+                    screen.blit(pin, node.rect)
+                elif node.end:
+                    screen.blit(flag, node.rect)
+                elif node.path:
+                    node.fill(screen, BLUE)
+                elif node in grid.closed:
+                    node.fill(screen, RED)
+                elif node in grid.open:
+                    node.fill(screen, GREEN)
+
     while True:
 
         # Check if game is quit
@@ -149,7 +172,7 @@ def main():
                     node.draw(i, j, board_origin, cell_size, screen)
             
             # Add start node
-            left, _, right = pygame.mouse.get_pressed()
+            left, _, _ = pygame.mouse.get_pressed()
 
             if left == 1:
                 mouse = pygame.mouse.get_pos()
@@ -173,18 +196,10 @@ def main():
             screen.blit(instruction, instruction_rect)
 
             # Draw the board
-            for row in cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    # Add the start node
-                    if node.start:
-                        screen.blit(pin, node.rect)
+            draw_board(cells, board_origin, cell_size, screen, grid)
             
             # Add end node
-            left, _, right = pygame.mouse.get_pressed()
+            left, _, _ = pygame.mouse.get_pressed()
 
             if left == 1:
                 mouse = pygame.mouse.get_pos()
@@ -232,21 +247,10 @@ def main():
             
 
             # Draw the board
-            for row in cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
-                    elif node.start:
-                        screen.blit(pin, node.rect)
-                    elif node.end:
-                        screen.blit(flag, node.rect)
+            draw_board(cells, board_origin, cell_size, screen, grid)
 
             # Check buttons or grid pressed
-            left, _, right = pygame.mouse.get_pressed()
+            left, _, _ = pygame.mouse.get_pressed()
 
             if left == 1:
                 mouse = pygame.mouse.get_pos()
@@ -345,24 +349,7 @@ def main():
                 grid.find_path()
 
             # Draw the board
-            for row in cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
-                    elif node.start:
-                        screen.blit(pin, node.rect)
-                    elif node.end:
-                        screen.blit(flag, node.rect)
-                    elif node.path:
-                        node.fill(screen, BLUE)
-                    elif node in grid.closed:
-                        node.fill(screen, RED)
-                    elif node in grid.open:
-                        node.fill(screen, GREEN)
+            draw_board(cells, board_origin, cell_size, screen, grid)
 
             # Check reset button pressed
             left, _, _ = pygame.mouse.get_pressed()
@@ -399,27 +386,10 @@ def main():
             screen.blit(reset_button_text, reset_button_rect)
 
             # Draw the board
-            for row in cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
-                    elif node.start:
-                        screen.blit(pin, node.rect)
-                    elif node.end:
-                        screen.blit(flag, node.rect)
-                    elif node.path:
-                        node.fill(screen, BLUE)
-                    elif node in grid.closed:
-                        node.fill(screen, RED)
-                    elif node in grid.open:
-                        node.fill(screen, GREEN)
+            draw_board(cells, board_origin, cell_size, screen, grid)
 
             # Check reset button pressed
-            left, _, right = pygame.mouse.get_pressed()
+            left, _, _ = pygame.mouse.get_pressed()
 
             if left == 1:
                 mouse = pygame.mouse.get_pos()
@@ -437,6 +407,5 @@ def main():
 
         pygame.display.flip()
 
-
-if __name__ == "__main__":
+if __name__ == "__main__": 
     main()

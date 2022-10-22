@@ -8,8 +8,8 @@ RED = (255, 0, 0)
 
 class Node():
     """
-    Node. These will construct the grid and will be 
-    given information so that the heuristics can be calculated
+    Node that will construct the grid and will be given information 
+    so that the heuristics can be calculated
     """
 
     def __init__(self, i: int, j: int):
@@ -44,10 +44,7 @@ class Node():
 
     
     def draw(self, i: int, j: int, board_origin: int, cell_size: int, screen: pygame.Surface) -> None:
-        """
-        This will draw the rect
-        """
-        # Draw the cell
+        """Method that draws the rect for each node."""
         self.rect = pygame.Rect(
             board_origin[0] + j * cell_size,
             board_origin[1] + i * cell_size,
@@ -57,14 +54,12 @@ class Node():
         
 
     def fill(self, screen: pygame.Surface, colour: tuple) -> None:
+        """Fills the rect of the node with a certain colour."""
         pygame.draw.rect(screen, colour, self.rect)
 
 
 class Grid():
-    """
-    The grid that the visualiser will traverse.
-    Constructed of Node objects
-    """
+    """The grid, constructed of Node objects, that the visualiser will traverse."""
 
     def __init__(self, height: int=25, width: int=40):
         
@@ -122,23 +117,31 @@ class Grid():
     def g_heuristic(self, node: Node) -> None:
         """
         Calculates the Manhattan distance for the greedy algorithm
-        and assigns it to the node.g variable
-        manhattan((x1, y1), (x2, y2)) = |x1 - x2| + |y1 - y2|
+        and assigns it to the node.g variable.
         """
         node.h = abs(node.i - self.end.i) + abs(node.j - self.end.j)
+
+    def colour_rects(self, node, screen, pin, flag) -> None:
+        """Fills the rect with specific colours."""
+        if node.obstruction:
+            node.fill(screen, WHITE)
+        elif node.start:
+            screen.blit(pin, node.rect)
+        elif node.end:
+            screen.blit(flag, node.rect)
+        elif node in self.open:
+            node.fill(screen, GREEN)
+        elif node in self.closed:
+            node.fill(screen, RED)
+
     
     
     def asearch(self, board_origin, cell_size, screen, pin, flag) -> bool:
-        """
-        This will perform the A* Search algorithm.
-        Usually the open and closed list need to be initialised
-        however these are initialised in the __init__ method.
-        """
+        """A* search algorithm."""
         
         # Append the starting node to the open list
         self.open.append(self.start)
 
-        # Find min f value while the list is not empty
         while self.open:
             
             # Set the current node to the node with the smallest f value
@@ -190,16 +193,7 @@ class Grid():
                     j = node.j
                     node.draw(i, j, board_origin, cell_size, screen)
 
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
-                    elif node.start:
-                        screen.blit(pin, node.rect)
-                    elif node.end:
-                        screen.blit(flag, node.rect)
-                    elif node in self.open:
-                        node.fill(screen, GREEN)
-                    elif node in self.closed:
-                        node.fill(screen, RED)
+                    self.colour_rects(node, screen, pin, flag)
 
             pygame.display.update()
 
@@ -256,16 +250,7 @@ class Grid():
                     j = node.j
                     node.draw(i, j, board_origin, cell_size, screen)
 
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
-                    elif node.start:
-                        screen.blit(pin, node.rect)
-                    elif node.end:
-                        screen.blit(flag, node.rect)
-                    elif node in self.open:
-                        node.fill(screen, GREEN)
-                    elif node in self.closed:
-                        node.fill(screen, RED)
+                    self.colour_rects(node, screen, pin, flag)
 
             pygame.display.update()
 
