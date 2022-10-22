@@ -14,7 +14,8 @@ def main():
         "bfs": "bfs",
         "dfs": "dfs",
         "breadth first search": "bfs",
-        "depth first search": "dfs"
+        "depth first search": "dfs",
+        "greedy": "greedy"
     }
 
     # Check usage
@@ -37,7 +38,6 @@ def main():
     HEIGHT = 25
     WIDTH = 40
     BLACK = (0, 0, 0)
-    GRAY = (180, 180, 180)
     WHITE = (255, 255, 255)
     GREEN = (0, 255, 0)
     RED = (255, 0, 0)
@@ -294,21 +294,28 @@ def main():
                 else:
                     search = False
             if algo == "djikstra":
-                if grid.djikstra():
+                if grid.djikstra(board_origin, cell_size, screen, pin, flag):
                     search = False
                     found = True
+                else:
+                    search = False
+            if algo == "greedy":
+                if grid.greedy(board_origin, cell_size, screen, pin, flag):
+                    found = True
+                    search = False
                 else:
                     search = False
             if algo == "bfs":
                 if grid.bfs(board_origin, cell_size, screen, pin, flag):
-                    search = False
                     found = True
+                    search = False
                 else:
                     search = False
             if algo == "dfs":
                 if grid.dfs(board_origin, cell_size, screen, pin, flag):
-                    search = False
                     found = True
+                    path = True
+                    search = False
                 else:
                     search = False
 
@@ -352,13 +359,13 @@ def main():
                         screen.blit(flag, node.rect)
                     elif node.path:
                         node.fill(screen, BLUE)
-                    elif node in grid.open:
-                        node.fill(screen, GREEN)
                     elif node in grid.closed:
                         node.fill(screen, RED)
+                    elif node in grid.open:
+                        node.fill(screen, GREEN)
 
             # Check reset button pressed
-            left, _, right = pygame.mouse.get_pressed()
+            left, _, _ = pygame.mouse.get_pressed()
 
             if left == 1:
                 mouse = pygame.mouse.get_pos()
@@ -406,10 +413,10 @@ def main():
                         screen.blit(flag, node.rect)
                     elif node.path:
                         node.fill(screen, BLUE)
-                    elif node in grid.open:
-                        node.fill(screen, GREEN)
                     elif node in grid.closed:
                         node.fill(screen, RED)
+                    elif node in grid.open:
+                        node.fill(screen, GREEN)
 
             # Check reset button pressed
             left, _, right = pygame.mouse.get_pressed()

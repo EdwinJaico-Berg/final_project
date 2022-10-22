@@ -1,5 +1,5 @@
 import pygame
-import math
+import numpy as np
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -89,7 +89,7 @@ class Grid():
 
     def get_neigbours(self, node: Node) -> list:
         """
-        Returns a set of nodes that are 
+        Returns a set of nodes that are vertically, horizontally, and diagonally adjacent to the node.
         """
         neighbours = []
 
@@ -109,22 +109,30 @@ class Grid():
         return neighbours
     
     
-    def heuristics(self, parent: Node, node: Node) -> None:
+    def a_heuristics(self, parent: Node, node: Node) -> None:
         """
-        Calculate the g, h, and f values, using Eucliadian distance
-        for the g and h values
+        Calculates the g, h, and f values for a node using Eucliadian distance. The g value calculates
+        the distance from the starting node to the current node. The h value calculates the distance from
+        the starting node to the end node. The f value combines these two for the final cost of the move.
         """
-        node.g = parent.g + 1
-        node.h = (self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2
+        node.g = np.sqrt((parent.i - node.i) ** 2 + (parent.j - node.j) ** 2)
+        node.h = np.sqrt((self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2)
         node.f = node.g + node.h
 
+    def g_heuristic(self, node: Node) -> None:
+        """
+        Calculates the Manhattan distance for the greedy algorithm
+        and assigns it to the node.g variable
+        manhattan((x1, y1), (x2, y2)) = |x1 - x2| + |y1 - y2|
+        """
+        node.h = abs(node.i - self.end.i) + abs(node.j - self.end.j)
     
     
     def asearch(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
         This will perform the A* Search algorithm.
         Usually the open and closed list need to be initialised
-        however, these are initialised in the __init__ method.
+        however these are initialised in the __init__ method.
         """
         
         # Append the starting node to the open list
@@ -163,7 +171,7 @@ class Grid():
                     continue
 
                 # Calculate the heuristic values
-                self.heuristics(current, neighbour)
+                self.a_heuristics(current, neighbour)
 
                 # Check if neighbour already on the open list
                 for open_neighbour in self.open:
@@ -212,7 +220,6 @@ class Grid():
         queue = self.open
 
         # Add the starting node to the visited and queue
-        visited.append(self.start)
         queue.append(self.start)
 
         while queue:
@@ -224,18 +231,24 @@ class Grid():
             neighbours = self.get_neigbours(current)
 
             for neighbour in neighbours:
-                
-                # Set the parent of the node
+
                 if not neighbour.parent:
                     neighbour.parent = current
 
-                # Check whether the neighbour is the end
-                if neighbour == self.end:
-                    return True
-                elif neighbour not in visited:
+                # Check that neighbour is not in visited:
+                if neighbour not in visited:
+                    
+                    # Mark the node as visited
                     visited.append(neighbour)
-                    queue.append(neighbour)
 
+                    # Check if it's the goal node
+                    if neighbour == self.end:
+                        return True
+                    
+                    # Else append it to the queue
+                    else:
+                        queue.append(neighbour)
+                
             # Draw the board
             for row in self.cells:
                 for node in row:
@@ -274,26 +287,28 @@ class Grid():
         while stack:
             
             # Pop the element from the stack and append it to the visited
-            current = stack.pop(0)
+            current = stack.pop()
 
-            if current == self.end:
-                return True
-            visited.append(current)
+            # Mark the node as visited
+            if current not in visited:
+                visited.append(current)
 
-            # Get the stack values
+            # Generate the neighbours of the node
             neighbours = self.get_neigbours(current)
-            
-            # Make sure no duplicate nodes
-            remove = []
-            for neighbour in neighbours:
-                if neighbour in stack:
-                    remove.append(neighbour)
-            
-            for neighbour in remove:
-                neighbours.remove(neighbour)
 
-            # Add the cleaned node list to the stack
-            stack = neighbours + stack
+            for neighbour in neighbours:
+
+                neighbour.parent = current
+
+                # Check the node is not in visited
+                if neighbour not in visited:
+
+                    # Check the node is the end
+                    if neighbour == self.end:
+                        return True
+
+                    else:
+                        stack.append(neighbour)
 
             # Draw the board
             for row in self.cells:
@@ -308,12 +323,90 @@ class Grid():
                         screen.blit(pin, node.rect)
                     elif node.end:
                         screen.blit(flag, node.rect)
-                    elif node in self.open:
-                        node.fill(screen, GREEN)
                     elif node in self.closed:
                         node.fill(screen, RED)
+                    elif node in self.open:
+                        node.fill(screen, GREEN)
 
             pygame.display.update()
+
+        return False
+
+    def greedy(self, board_origin, cell_size, screen, pin, flag) -> bool:
+        """
+        Greedy pathfinding algorithm that uses self.open and self.closed
+        as the two main lists
+        """
+
+        # Calculate the heuristic for the starting node
+        self.g_heuristic(self.start)
+        
+        # Append the node to the open list
+        self.open.append(self.start)
+
+        while self.open:
+            
+            # Find the node with the minimum heuristic value
+            current = self.open[0]
+            current_idx = 0
+            
+            for index, node in enumerate(self.open):
+                if node.g < current.g:
+                    current = node
+                    current_idx = index
+
+            # Remove this node from the open list
+            current = self.open.pop(current_idx)
+
+            # Check whether current node is the end
+            if current == self.end:
+                return True
+
+            # Append current node to the closed list
+            self.closed.append(current)
+            
+            # Generate the neighbours of the current node
+            neighbours = self.get_neigbours(current)
+
+            for neighbour in neighbours:
+                
+                # Calculate the heuristic value for the neighbour
+                self.g_heuristic(neighbour)
+
+                # Set the parent 
+                if neighbour not in self.closed and neighbour not in self.open:
+
+                    # Set the parent
+                    neighbour.parent = current
+
+                    # Add the neighbour to the open list
+                    self.open.append(neighbour)
+
+                elif neighbour in self.open:
+
+                    continue
+
+            # Draw the board
+            for row in self.cells:
+                for node in row:
+                    i = node.i
+                    j = node.j
+                    node.draw(i, j, board_origin, cell_size, screen)
+
+                    if node.obstruction:
+                        node.fill(screen, WHITE)
+                    elif node.start:
+                        screen.blit(pin, node.rect)
+                    elif node.end:
+                        screen.blit(flag, node.rect)
+                    elif node in self.closed:
+                        node.fill(screen, RED)
+                    elif node in self.open:
+                        node.fill(screen, GREEN)
+
+            pygame.display.update()
+
+                
 
         return False
 
