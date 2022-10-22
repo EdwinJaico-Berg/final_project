@@ -287,41 +287,19 @@ def main():
             instruction_rect = instruction.get_rect()
             instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
+
+            algos = {'asearch': grid.asearch, 'djikstra': grid.djikstra, 
+                     'greedy': grid.greedy, 'bfs': grid.bfs, 'dfs': grid.dfs}
             
             # Start algorithm search depending on input
             algo = algorithms[algorithm.lower()]
-            if algo == "asearch":
-                if grid.asearch(board_origin, cell_size, screen, pin, flag):
-                    found = True
-                    path = True
-                    search = False
-                else:
-                    search = False
-            if algo == "djikstra":
-                if grid.djikstra(board_origin, cell_size, screen, pin, flag):
-                    search = False
-                    found = True
-                else:
-                    search = False
-            if algo == "greedy":
-                if grid.greedy(board_origin, cell_size, screen, pin, flag):
-                    found = True
-                    search = False
-                else:
-                    search = False
-            if algo == "bfs":
-                if grid.bfs(board_origin, cell_size, screen, pin, flag):
-                    found = True
-                    search = False
-                else:
-                    search = False
-            if algo == "dfs":
-                if grid.dfs(board_origin, cell_size, screen, pin, flag):
-                    found = True
-                    path = True
-                    search = False
-                else:
-                    search = False
+
+            if algos[algo](board_origin, cell_size, screen, pin, flag):
+                found = True
+                path = True
+                search = False
+            else:
+                search = False
 
 
         # Once the node has been found
@@ -345,8 +323,7 @@ def main():
             screen.blit(reset_button_text, reset_button_rect)
             
             # Draw the path
-            if path:
-                grid.find_path()
+            grid.find_path()
 
             # Draw the board
             draw_board(cells, board_origin, cell_size, screen, grid)

@@ -82,6 +82,7 @@ class Grid():
         self.open = []
         self.closed = []
 
+    
     def get_neigbours(self, node: Node) -> list:
         """
         Returns a set of nodes that are vertically, horizontally, and diagonally adjacent to the node.
@@ -114,6 +115,7 @@ class Grid():
         node.h = np.sqrt((self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2)
         node.f = node.g + node.h
 
+    
     def g_heuristic(self, node: Node) -> None:
         """
         Calculates the Manhattan distance for the greedy algorithm
@@ -121,6 +123,7 @@ class Grid():
         """
         node.h = abs(node.i - self.end.i) + abs(node.j - self.end.j)
 
+    
     def colour_rects(self, node, screen, pin, flag) -> None:
         """Fills the rect with specific colours."""
         if node.obstruction:
@@ -134,7 +137,11 @@ class Grid():
         elif node in self.closed:
             node.fill(screen, RED)
 
-    
+    def check_neighbour(self, neighbour: Node) -> bool:
+        for open_neighbour in self.open:
+            if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
+                return True
+
     
     def asearch(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """A* search algorithm."""
@@ -173,13 +180,12 @@ class Grid():
                 if neighbour in self.closed:
                     continue
 
+                # Check if neighbour already on the open list
+                if self.check_neighbour(neighbour):
+                    continue
+
                 # Calculate the heuristic values
                 self.a_heuristics(current, neighbour)
-
-                # Check if neighbour already on the open list
-                for open_neighbour in self.open:
-                    if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
-                        continue
                 
                 self.open.append(neighbour)            
 
@@ -215,6 +221,7 @@ class Grid():
 
         # Add the starting node to the visited and queue
         queue.append(self.start)
+        visited.append(self.start)
 
         while queue:
             
@@ -243,7 +250,7 @@ class Grid():
                     else:
                         queue.append(neighbour)
                 
-            # Draw the board
+            # # Draw the board
             for row in self.cells:
                 for node in row:
                     i = node.i
@@ -255,6 +262,7 @@ class Grid():
             pygame.display.update()
 
         return False
+    
     
     def dfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
@@ -317,6 +325,7 @@ class Grid():
 
         return False
 
+    
     def greedy(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
         Greedy pathfinding algorithm that uses self.open and self.closed
