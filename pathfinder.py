@@ -217,7 +217,7 @@ class Grid():
 
     
     def djikstra(self):
-        raise NotImplementedError
+        """Djikstra's algorithm."""
     
     
     def bfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
