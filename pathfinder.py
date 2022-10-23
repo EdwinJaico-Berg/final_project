@@ -1,6 +1,8 @@
 import pygame
 import numpy as np
 
+from utils import flatten
+
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -22,6 +24,9 @@ class Node():
         self.f = 0.0
         self.g =  0.0
         self.h = 0.0
+
+        # Set distance
+        self.distance = np.Inf
 
         # Set the board parameters
         self.start = False
@@ -131,6 +136,10 @@ class Grid():
         """
         node.h = abs(node.i - self.end.i) + abs(node.j - self.end.j)
 
+    def weight(self, parent: Node, child: Node) -> float:
+        """Returns the euclidean distance between two nodes"""
+        return np.sqrt((parent.i - child.i) ** 2 + (parent.j - child.j) ** 2)
+
     
     def draw_board(self, board_origin, cell_size, screen, pin, flag) -> None:
         """Updates the board and the colours of the rects"""
@@ -216,9 +225,61 @@ class Grid():
         return False
 
     
-    def djikstra(self):
+    def djikstra(self, board_origin, cell_size, screen, pin, flag):
         """Djikstra's algorithm."""
+        visited = self.closed
+        queue = self.open = flatten(self.cells)
+
+        # Set the distances of the start node to 0
+        self.start.distance = 0
     
+        # Initiate loop
+        while queue:
+
+            # Find the node with the shortest distance
+            current = queue[0]
+            current_index = 0
+            for index, node in enumerate(queue):
+                if node.distance < current.distance:
+                    current = node
+                    current_index = index
+
+            # Remove current from the queue
+            queue.pop(current_index)
+
+            # Append it to the visited
+            visited.append(current)
+
+            # Check current node is the goal
+            if current == self.end:
+                
+                # Break while loop
+                return True
+
+            # Generate the neighbours
+            neighbours = self.get_neigbours(current)
+
+            for neighbour in neighbours:
+                
+                # Assign parent
+                if not neighbour.parent:
+                    neighbour.parent = current
+                
+                # Check neighbour has not been visited
+                if neighbour in visited:
+                    continue
+                
+                # Calcualte the distance of the neighbours
+                neighbour.distance = current.distance + self.weight(current, neighbour)
+        
+            # Draw the board
+            self.draw_board(board_origin, cell_size, screen, pin, flag)
+
+            pygame.display.update()
+
+        # Search unsuccessful
+        return False
+
     
     def bfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
