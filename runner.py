@@ -11,7 +11,7 @@ def main():
     algorithm = None
     algorithms = {
         "asearch": "A* search",
-        "a*": "A* search",
+        "astar": "A* search",
         "djikstra": "Djikstra's",
         "bfs": "Breadth First Search",
         "dfs": "Depth First Search",
@@ -31,7 +31,7 @@ def main():
     else:
 
         # Use a* as default algorithm but print usage
-        algorithm = "A*"
+        algorithm = "astar"
         print("------------------------------------------------")
         print("Suggested Usage: python runner.py algorithm maze")
         print("------------------------------------------------")
@@ -139,7 +139,7 @@ def main():
             # Description
             description = [
                 "You get to choose the start and end point of the pathfinder",
-                f"Using the {algorithms[sys.argv[1]]} pathfinding algorithm,", 
+                f"Using the {algorithms[algorithm]} pathfinding algorithm,", 
                 "the shortest path will be calculated"
             ]
             for i, sentence in enumerate(description):

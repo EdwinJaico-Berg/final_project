@@ -119,8 +119,8 @@ class Grid():
         the distance from the starting node to the current node. The h value calculates the distance from
         the starting node to the end node. The f value combines these two for the final cost of the move.
         """
-        node.g = np.sqrt((parent.i - node.i) ** 2 + (parent.j - node.j) ** 2)
-        node.h = np.sqrt((self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2)
+        node.g = (parent.i - node.i) ** 2 + (parent.j - node.j) ** 2
+        node.h = (self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2
         node.f = node.g + node.h
 
     
@@ -264,6 +264,7 @@ class Grid():
 
             pygame.display.update()
 
+        # Search unsuccessful
         return False
     
     
@@ -279,7 +280,7 @@ class Grid():
         # Append the start node to the stack
         stack.append(self.start)
 
-
+        # Initiate loop
         while stack:
             
             # Pop the element from the stack and append it to the visited
@@ -294,7 +295,8 @@ class Grid():
 
             for neighbour in neighbours:
 
-                neighbour.parent = current
+                if not neighbour.parent:
+                    neighbour.parent = current
 
                 # Check the node is not in visited
                 if neighbour not in visited:
@@ -311,6 +313,7 @@ class Grid():
 
             pygame.display.update()
 
+        # Search unsucessful
         return False
 
     
@@ -373,10 +376,11 @@ class Grid():
 
             pygame.display.update()
 
+        # Search unsuccessful
         return False
 
 
-    def find_path(self):
+    def find_path(self) -> None:
         """Marks nodes as belonging to the path."""
 
         current = self.end
