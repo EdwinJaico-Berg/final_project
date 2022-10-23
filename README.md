@@ -19,10 +19,10 @@
     <img src="assets/images/icon.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Best-README-Template</h3>
+  <h3 align="center">Path Finding Visualiser</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    A path finding visualiser built in python!
     <br />
     <a href="https://github.com/EdwinJaico-Berg/final_project"><strong>Explore the docs</strong></a>
     <br />
