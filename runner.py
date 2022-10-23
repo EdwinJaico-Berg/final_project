@@ -1,6 +1,6 @@
-import pygame
 import sys
 import time
+import pygame
 import numpy as np
 
 from pathfinder import Node, Grid
@@ -386,6 +386,8 @@ def main():
                     # Re-initialise all the variables
                     grid = Grid(HEIGHT, WIDTH)
                     cells = grid.cells
+                    if mask is not None:
+                        grid.generate_maze(mask)
                     start = True
                     end = True
                     barriers = True
