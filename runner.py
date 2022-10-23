@@ -1,14 +1,16 @@
 import pygame
 import sys
 import time
+import numpy as np
 
 from pathfinder import Node, Grid
 
 def main():
 
     # Initialise algorithm variables
-    algorithm = ""
+    algorithm = None
     algorithms = {
+        "asearch": "asearch",
         "a*": "asearch",
         "djikstra": "djikstra",
         "bfs": "bfs",
@@ -31,7 +33,7 @@ def main():
         # Use a* as default algorithm but print usage
         algorithm = "A*"
         print("-------------------------------------------")
-        print("Suggested Usage: python runner.py algorithm")
+        print("Suggested Usage: python runner.py algorithm maze")
         print("-------------------------------------------")
 
     # Initialise variables
@@ -73,6 +75,16 @@ def main():
     # Initialise the grid
     grid = Grid(HEIGHT, WIDTH)
     cells = grid.cells
+
+    mask = None
+
+    # Generate maze if asked
+    try:
+        if sys.argv[2]:
+            mask = np.random.randint(0, 2, (HEIGHT,WIDTH))
+            grid.generate_maze(mask)
+    except IndexError:
+        pass
 
     # Set logical barriers
     instructions = True
@@ -162,14 +174,7 @@ def main():
             screen.blit(instruction, instruction_rect)
 
             # Draw the board
-            for row in cells:
-                for node in row:
-
-                    # No need to check for obstructions / end point
-                    # as these will only be added later
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
+            draw_board(cells, board_origin, cell_size, screen, grid)
             
             # Add start node
             left, _, _ = pygame.mouse.get_pressed()
@@ -338,6 +343,7 @@ def main():
 
                     # Re-initialise all the variables
                     grid = Grid(HEIGHT, WIDTH)
+                    grid.generate_maze(mask)
                     cells = grid.cells
                     start = True
                     end = True

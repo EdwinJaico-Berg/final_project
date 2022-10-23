@@ -82,6 +82,14 @@ class Grid():
         self.open = []
         self.closed = []
 
+    def generate_maze(self, mask) -> None:
+        """Randomly generates a maze on the GUI"""
+
+        for i, row in enumerate(self.cells):
+            for j, node in enumerate(row):
+                if mask[i][j] == 1:
+                    node.obstruction = True
+
     
     def get_neigbours(self, node: Node) -> list:
         """
@@ -406,9 +414,8 @@ class Grid():
 
 
     def find_path(self) -> None:
-        """
-        Marks nodes as belonging to the path
-        """
+        """Marks nodes as belonging to the path."""
+
         current = self.end
 
         while current is not None:
