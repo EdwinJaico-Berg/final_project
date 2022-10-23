@@ -269,6 +269,8 @@ def main():
 
                     # Re-initialise all the variables
                     grid = Grid(HEIGHT, WIDTH)
+                    if mask is not None:
+                        grid.generate_maze(mask)
                     cells = grid.cells
                     start = True
                     end = True
@@ -344,7 +346,8 @@ def main():
 
                     # Re-initialise all the variables
                     grid = Grid(HEIGHT, WIDTH)
-                    grid.generate_maze(mask)
+                    if mask is not None:
+                        grid.generate_maze(mask)
                     cells = grid.cells
                     start = True
                     end = True

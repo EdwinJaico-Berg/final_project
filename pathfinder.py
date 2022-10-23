@@ -150,7 +150,7 @@ class Grid():
                     node.fill(screen, RED)
                 elif node in self.open:
                     node.fill(screen, GREEN)
-                    
+
 
     def check_neighbour(self, neighbour: Node) -> bool:
         for open_neighbour in self.open:
@@ -381,6 +381,6 @@ class Grid():
 
         current = self.end
 
-        while current is not None:
+        while current != self.start:
             current.path = True
             current = current.parent
