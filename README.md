@@ -69,7 +69,7 @@
 
 <img src='assets/images/example.png'>
 
-I have built this path finding visualiser as part of Harvard's CS50 course.
+I have built this path finding visualiser as part of Harvard's CS50 course. The visualiser is able to show a greedy algorithm, alongside breadth first search, depth first search, Djikstra's and A* search.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -95,6 +95,8 @@ This project requires two packages: pygame and numpy.
 ## Usage
 
 In order to use the visualiser, the user must run the runner.py file along with 2 optional command line arguments. The first of these is the algorithm keyword, which determines the algorith that is used to find the target. The second is the maze keyword, which automatically creates a maze on the board for the algorithm to explore. If both of these are omitted however, the algorithm will default to A* search and no maze will be drawn.
+
+<img src='assets/images/example.gif'>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
