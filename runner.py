@@ -10,14 +10,14 @@ def main():
     # Initialise algorithm variables
     algorithm = None
     algorithms = {
-        "asearch": "asearch",
-        "a*": "asearch",
-        "djikstra": "djikstra",
-        "bfs": "bfs",
-        "dfs": "dfs",
-        "breadth first search": "bfs",
-        "depth first search": "dfs",
-        "greedy": "greedy"
+        "asearch": "A* search",
+        "a*": "A* search",
+        "djikstra": "Djikstra's",
+        "bfs": "Breadth First Search",
+        "dfs": "Depth First Search",
+        "breadth first search": "Breadth First Search",
+        "depth first search": "Depth First Search",
+        "greedy": "Greedy"
     }
 
     # Check usage
@@ -32,9 +32,9 @@ def main():
 
         # Use a* as default algorithm but print usage
         algorithm = "A*"
-        print("-------------------------------------------")
+        print("------------------------------------------------")
         print("Suggested Usage: python runner.py algorithm maze")
-        print("-------------------------------------------")
+        print("------------------------------------------------")
 
     # Initialise variables
     HEIGHT = 25
@@ -139,7 +139,7 @@ def main():
             # Description
             description = [
                 "You get to choose the start and end point of the pathfinder",
-                f"Using the {algorithm} pathfinding algorithm,", 
+                f"Using the {algorithms[sys.argv[1]]} pathfinding algorithm,", 
                 "the shortest path will be calculated"
             ]
             for i, sentence in enumerate(description):
@@ -293,8 +293,9 @@ def main():
             instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
 
-            algos = {'asearch': grid.asearch, 'djikstra': grid.djikstra, 
-                     'greedy': grid.greedy, 'bfs': grid.bfs, 'dfs': grid.dfs}
+            algos = {'A* search': grid.asearch, "Djikstra's": grid.djikstra, 
+                     'Greedy': grid.greedy, 'Breadth First Search': grid.bfs, 
+                     'Depth First Search': grid.dfs}
             
             # Start algorithm search depending on input
             algo = algorithms[algorithm.lower()]
