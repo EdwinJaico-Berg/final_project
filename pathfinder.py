@@ -82,7 +82,7 @@ class Grid():
         self.open = []
         self.closed = []
 
-    def generate_maze(self, mask) -> None:
+    def generate_maze(self, mask: np.ndarray) -> None:
         """Randomly generates a maze on the GUI"""
 
         for i, row in enumerate(self.cells):
@@ -132,18 +132,25 @@ class Grid():
         node.h = abs(node.i - self.end.i) + abs(node.j - self.end.j)
 
     
-    def colour_rects(self, node, screen, pin, flag) -> None:
-        """Fills the rect with specific colours."""
-        if node.obstruction:
-            node.fill(screen, WHITE)
-        elif node.start:
-            screen.blit(pin, node.rect)
-        elif node.end:
-            screen.blit(flag, node.rect)
-        elif node in self.open:
-            node.fill(screen, GREEN)
-        elif node in self.closed:
-            node.fill(screen, RED)
+    def draw_board(self, board_origin, cell_size, screen, pin, flag) -> None:
+        """Updates the board and the colours of the rects"""
+        for row in self.cells:
+            for node in row:
+                i = node.i
+                j = node.j
+                node.draw(i, j, board_origin, cell_size, screen)
+
+                if node.obstruction:
+                    node.fill(screen, WHITE)
+                elif node.start:
+                    screen.blit(pin, node.rect)
+                elif node.end:
+                    screen.blit(flag, node.rect)
+                elif node in self.closed:
+                    node.fill(screen, RED)
+                elif node in self.open:
+                    node.fill(screen, GREEN)
+                    
 
     def check_neighbour(self, neighbour: Node) -> bool:
         for open_neighbour in self.open:
@@ -201,13 +208,7 @@ class Grid():
                 neighbour.parent = current
 
             # Draw the board
-            for row in self.cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    self.colour_rects(node, screen, pin, flag)
+            self.draw_board(board_origin, cell_size, screen, pin, flag)
 
             pygame.display.update()
 
@@ -219,7 +220,7 @@ class Grid():
         raise NotImplementedError
     
     
-    def bfs(self, board_origin, cell_size, screen, pin, flag):
+    def bfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
         Breadth first search algorithm, using the open and closed list
         as the queue and visited list
@@ -258,14 +259,8 @@ class Grid():
                     else:
                         queue.append(neighbour)
                 
-            # # Draw the board
-            for row in self.cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    self.colour_rects(node, screen, pin, flag)
+            # Draw the board
+            self.draw_board(board_origin, cell_size, screen, pin, flag)
 
             pygame.display.update()
 
@@ -312,22 +307,7 @@ class Grid():
                         stack.append(neighbour)
 
             # Draw the board
-            for row in self.cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
-                    elif node.start:
-                        screen.blit(pin, node.rect)
-                    elif node.end:
-                        screen.blit(flag, node.rect)
-                    elif node in self.closed:
-                        node.fill(screen, RED)
-                    elif node in self.open:
-                        node.fill(screen, GREEN)
+            self.draw_board(board_origin, cell_size, screen, pin, flag)
 
             pygame.display.update()
 
@@ -389,31 +369,14 @@ class Grid():
                     continue
 
             # Draw the board
-            for row in self.cells:
-                for node in row:
-                    i = node.i
-                    j = node.j
-                    node.draw(i, j, board_origin, cell_size, screen)
-
-                    if node.obstruction:
-                        node.fill(screen, WHITE)
-                    elif node.start:
-                        screen.blit(pin, node.rect)
-                    elif node.end:
-                        screen.blit(flag, node.rect)
-                    elif node in self.closed:
-                        node.fill(screen, RED)
-                    elif node in self.open:
-                        node.fill(screen, GREEN)
+            self.draw_board(board_origin, cell_size, screen, pin, flag)
 
             pygame.display.update()
-
-                
 
         return False
 
 
-    def find_path(self) -> None:
+    def find_path(self):
         """Marks nodes as belonging to the path."""
 
         current = self.end
