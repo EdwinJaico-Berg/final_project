@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+from collections import deque
 
 from utils import flatten
 
@@ -8,21 +9,22 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
-class Node():
+
+class Node:
     """
-    Node that will construct the grid and will be given information 
+    Node that will construct the grid and will be given information
     so that the heuristics can be calculated
     """
 
     def __init__(self, i: int, j: int):
-        
+
         # Initialise the coordinates
         self.i = i
         self.j = j
-        
+
         # Initialise the heuristic variables
         self.f = 0.0
-        self.g =  0.0
+        self.g = 0.0
         self.h = 0.0
 
         # Set distance
@@ -39,35 +41,35 @@ class Node():
 
         # Give the node a rect variable so that it can interact
         self.rect = None
-    
-    
-    def __eq__(self, __o: object) -> bool:
-        return (
-            (self.i == __o.i) and
-            (self.j == __o.j)
-        )
 
-    
-    def draw(self, i: int, j: int, board_origin: int, cell_size: int, screen: pygame.Surface) -> None:
+    def __eq__(self, __o: object) -> bool:
+        return (self.i == __o.i) and (self.j == __o.j)
+
+    def __ne__(self, __o: object) -> bool:
+        return not (self == __o)
+
+    def draw(
+        self, i: int, j: int, board_origin: int, cell_size: int, screen: pygame.Surface
+    ) -> None:
         """Method that draws the rect for each node."""
         self.rect = pygame.Rect(
             board_origin[0] + j * cell_size,
             board_origin[1] + i * cell_size,
-            cell_size, cell_size
+            cell_size,
+            cell_size,
         )
         pygame.draw.rect(screen, WHITE, self.rect, 1)
-        
 
     def fill(self, screen: pygame.Surface, colour: tuple) -> None:
         """Fills the rect of the node with a certain colour."""
         pygame.draw.rect(screen, colour, self.rect)
 
 
-class Grid():
+class Grid:
     """The grid, constructed of Node objects, that the visualiser will traverse."""
 
-    def __init__(self, height: int=25, width: int=40):
-        
+    def __init__(self, height: int = 25, width: int = 40):
+
         # Set the variables for the board
         self.height = height
         self.width = width
@@ -95,7 +97,6 @@ class Grid():
                 if mask[i][j] == 1:
                     node.obstruction = True
 
-    
     def get_neigbours(self, node: Node) -> list:
         """
         Returns a set of nodes that are vertically, horizontally, and diagonally adjacent to the node.
@@ -104,20 +105,19 @@ class Grid():
 
         for i in range(node.i - 1, node.i + 2):
             for j in range(node.j - 1, node.j + 2):
-                
+
                 # Check it falls within the grid
                 if 0 <= i < self.height and 0 <= j < self.width:
-                    
+
                     # Define a Node variable called neighbour
                     neighbour = self.cells[i][j]
-                    
+
                     # Ignore the cell itself
                     if neighbour != node and not neighbour.obstruction:
                         neighbours.append(neighbour)
 
         return neighbours
-    
-    
+
     def a_heuristics(self, parent: Node, node: Node) -> None:
         """
         Calculates the g, h, and f values for a node using Eucliadian distance. The g value calculates
@@ -128,7 +128,6 @@ class Grid():
         node.h = (self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2
         node.f = node.g + node.h
 
-    
     def g_heuristic(self, node: Node) -> None:
         """
         Calculates the Manhattan distance for the greedy algorithm
@@ -140,7 +139,6 @@ class Grid():
         """Returns the euclidean distance between two nodes"""
         return np.sqrt((parent.i - child.i) ** 2 + (parent.j - child.j) ** 2)
 
-    
     def draw_board(self, board_origin, cell_size, screen, pin, flag) -> None:
         """Updates the board and the colours of the rects"""
         for row in self.cells:
@@ -160,21 +158,19 @@ class Grid():
                 elif node in self.open:
                     node.fill(screen, GREEN)
 
-
     def check_neighbour(self, neighbour: Node) -> bool:
         for open_neighbour in self.open:
             if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
                 return True
 
-    
     def asearch(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """A* search algorithm."""
-        
+
         # Append the starting node to the open list
         self.open.append(self.start)
 
         while self.open:
-            
+
             # Set the current node to the node with the smallest f value
             current = self.open[0]
             current_index = 0
@@ -182,7 +178,7 @@ class Grid():
                 if node.f < current.f:
                     current = node
                     current_index = index
-            
+
             # Remove current from the grid.open
             self.open.pop(current_index)
 
@@ -191,13 +187,13 @@ class Grid():
 
             # Check current node is the goal
             if current == self.end:
-                
+
                 # Break while loop
                 return True
 
             # Generate the neighbours
             neighbours = self.get_neigbours(current)
-            
+
             for neighbour in neighbours:
 
                 # Check whether neighbour has been searched
@@ -210,8 +206,8 @@ class Grid():
 
                 # Calculate the heuristic values
                 self.a_heuristics(current, neighbour)
-                
-                self.open.append(neighbour)            
+
+                self.open.append(neighbour)
 
                 # Assign parent
                 neighbour.parent = current
@@ -224,7 +220,6 @@ class Grid():
         # If open no longer has nodes
         return False
 
-    
     def djikstra(self, board_origin, cell_size, screen, pin, flag):
         """Djikstra's algorithm."""
         visited = self.closed
@@ -232,7 +227,7 @@ class Grid():
 
         # Set the distances of the start node to 0
         self.start.distance = 0
-    
+
         # Initiate loop
         while queue:
 
@@ -252,7 +247,7 @@ class Grid():
 
             # Check current node is the goal
             if current == self.end:
-                
+
                 # Break while loop
                 return True
 
@@ -260,18 +255,18 @@ class Grid():
             neighbours = self.get_neigbours(current)
 
             for neighbour in neighbours:
-                
+
                 # Assign parent
                 if not neighbour.parent:
                     neighbour.parent = current
-                
+
                 # Check neighbour has not been visited
                 if neighbour in visited:
                     continue
-                
+
                 # Calcualte the distance of the neighbours
                 neighbour.distance = current.distance + self.weight(current, neighbour)
-        
+
             # Draw the board
             self.draw_board(board_origin, cell_size, screen, pin, flag)
 
@@ -280,7 +275,6 @@ class Grid():
         # Search unsuccessful
         return False
 
-    
     def bfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
         Breadth first search algorithm, using the open and closed list
@@ -294,7 +288,7 @@ class Grid():
         visited.append(self.start)
 
         while queue:
-            
+
             # Pop the first element in the queue
             current = queue.pop(0)
 
@@ -308,18 +302,18 @@ class Grid():
 
                 # Check that neighbour is not in visited:
                 if neighbour not in visited:
-                    
+
                     # Mark the node as visited
                     visited.append(neighbour)
 
                     # Check if it's the goal node
                     if neighbour == self.end:
                         return True
-                    
+
                     # Else append it to the queue
                     else:
                         queue.append(neighbour)
-                
+
             # Draw the board
             self.draw_board(board_origin, cell_size, screen, pin, flag)
 
@@ -327,8 +321,7 @@ class Grid():
 
         # Search unsuccessful
         return False
-    
-    
+
     def dfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
         Depth-First Search where the set of visited is self.closed
@@ -343,7 +336,7 @@ class Grid():
 
         # Initiate loop
         while stack:
-            
+
             # Pop the element from the stack and append it to the visited
             current = stack.pop()
 
@@ -377,7 +370,6 @@ class Grid():
         # Search unsucessful
         return False
 
-    
     def greedy(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """
         Greedy pathfinding algorithm that uses self.open and self.closed
@@ -386,16 +378,16 @@ class Grid():
 
         # Calculate the heuristic for the starting node
         self.g_heuristic(self.start)
-        
+
         # Append the node to the open list
         self.open.append(self.start)
 
         while self.open:
-            
+
             # Find the node with the minimum heuristic value
             current = self.open[0]
             current_idx = 0
-            
+
             for index, node in enumerate(self.open):
                 if node.g < current.g:
                     current = node
@@ -410,16 +402,16 @@ class Grid():
 
             # Append current node to the closed list
             self.closed.append(current)
-            
+
             # Generate the neighbours of the current node
             neighbours = self.get_neigbours(current)
 
             for neighbour in neighbours:
-                
+
                 # Calculate the heuristic value for the neighbour
                 self.g_heuristic(neighbour)
 
-                # Set the parent 
+                # Set the parent
                 if neighbour not in self.closed and neighbour not in self.open:
 
                     # Set the parent
@@ -439,7 +431,6 @@ class Grid():
 
         # Search unsuccessful
         return False
-
 
     def find_path(self) -> None:
         """Marks nodes as belonging to the path."""
