@@ -5,6 +5,7 @@ import numpy as np
 
 from pathfinder import Node, Grid
 
+
 def main():
 
     # Initialise algorithm variables
@@ -17,7 +18,7 @@ def main():
         "dfs": "Depth First Search",
         "breadth first search": "Breadth First Search",
         "depth first search": "Depth First Search",
-        "greedy": "Greedy"
+        "greedy": "Greedy",
     }
 
     # Check usage
@@ -27,7 +28,7 @@ def main():
         algorithm = sys.argv[1]
         if algorithm.lower() not in algorithms:
             sys.exit("This algorithm has not been implemented yet")
-    
+
     else:
 
         # Use a* as default algorithm but print usage
@@ -47,7 +48,7 @@ def main():
 
     # Create game
     pygame.init()
-    pygame.display.set_caption('Pathfinder')
+    pygame.display.set_caption("Pathfinder")
     icon = pygame.image.load("assets/images/icon.png")
     pygame.display.set_icon(icon)
     size = width, height = 600, 500
@@ -58,10 +59,10 @@ def main():
     small_font = pygame.font.Font(WALKWAY, 20)
     medium_font = pygame.font.Font(WALKWAY, 28)
     large_font = pygame.font.Font(WALKWAY, 40)
-    
+
     # Compute board size
     BOARD_PADDING = 20
-    board_width = width - (BOARD_PADDING  * 2)
+    board_width = width - (BOARD_PADDING * 2)
     board_height = height - (BOARD_PADDING * 2)
     cell_size = int(min(board_width / WIDTH, board_height / HEIGHT))
     board_origin = (BOARD_PADDING, BOARD_PADDING + 100)
@@ -81,7 +82,7 @@ def main():
     # Generate maze if asked
     try:
         if sys.argv[2]:
-            mask = np.random.randint(0, 2, (HEIGHT,WIDTH))
+            mask = np.random.randint(0, 2, (HEIGHT, WIDTH))
             grid.generate_maze(mask)
     except IndexError:
         pass
@@ -97,13 +98,11 @@ def main():
 
     # Create draw board function
     def draw_board(cells, board_origin, cell_size, screen, grid) -> None:
-        '''Draw the rects for the nodes.'''
-        
+        """Draw the rects for the nodes."""
+
         for row in cells:
             for node in row:
-                i = node.i
-                j = node.j
-                node.draw(i, j, board_origin, cell_size, screen)
+                node.draw(board_origin, cell_size, screen)
 
                 if node.obstruction:
                     node.fill(screen, WHITE)
@@ -124,7 +123,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-        
+
         screen.fill(BLACK)
 
         # Show visualiser instructions
@@ -139,8 +138,8 @@ def main():
             # Description
             description = [
                 "You get to choose the start and end point of the pathfinder",
-                f"Using the {algorithms[algorithm]} pathfinding algorithm,", 
-                "the shortest path will be calculated"
+                f"Using the {algorithms[algorithm]} pathfinding algorithm,",
+                "the shortest path will be calculated",
             ]
             for i, sentence in enumerate(description):
                 line = small_font.render(sentence, True, WHITE)
@@ -155,7 +154,7 @@ def main():
             button_text_rect.center = button_rect.center
             pygame.draw.rect(screen, WHITE, button_rect)
             screen.blit(button_text, button_text_rect)
-            
+
             # Check button input
             click, _, _ = pygame.mouse.get_pressed()
             if click == 1:
@@ -163,10 +162,10 @@ def main():
                 if button_rect.collidepoint(mouse):
                     instructions = False
                     time.sleep(0.3)
-        
+
         # Show instructions to place start node
         elif start:
-            
+
             # Write instructions on screen
             instruction = medium_font.render("Place start node", True, WHITE)
             instruction_rect = instruction.get_rect()
@@ -175,7 +174,7 @@ def main():
 
             # Draw the board
             draw_board(cells, board_origin, cell_size, screen, grid)
-            
+
             # Add start node
             left, _, _ = pygame.mouse.get_pressed()
 
@@ -190,10 +189,10 @@ def main():
                             grid.start = node
                             start = False
                             time.sleep(0.3)
-        
+
         # Show instructions to place end node
         elif end:
-            
+
             # Write instructions
             instruction = medium_font.render("Place end node", True, WHITE)
             instruction_rect = instruction.get_rect()
@@ -202,7 +201,7 @@ def main():
 
             # Draw the board
             draw_board(cells, board_origin, cell_size, screen, grid)
-            
+
             # Add end node
             left, _, _ = pygame.mouse.get_pressed()
 
@@ -218,10 +217,10 @@ def main():
                                 grid.end = node
                                 end = False
                                 time.sleep(0.3)
-        
+
         # Show instructions to draw barriers
         elif barriers:
-            
+
             # Write instructions
             instruction = medium_font.render("Draw barriers", True, WHITE)
             instruction_rect = instruction.get_rect()
@@ -229,10 +228,7 @@ def main():
             screen.blit(instruction, instruction_rect)
 
             # Search button
-            search_button = pygame.Rect(
-                (width * (1 / 2)) + BOARD_PADDING, 30, 
-                100, 40
-            )
+            search_button = pygame.Rect((width * (1 / 2)) + BOARD_PADDING, 30, 100, 40)
             search_button_text = medium_font.render("Search", True, BLACK)
             search_button_rect = search_button_text.get_rect()
             search_button_rect.center = search_button.center
@@ -241,15 +237,13 @@ def main():
 
             # Reset button
             reset_button = pygame.Rect(
-                (width * (1 / 2)) + BOARD_PADDING + 115, 30,
-                100, 40 
+                (width * (1 / 2)) + BOARD_PADDING + 115, 30, 100, 40
             )
             reset_button_text = medium_font.render("Reset", True, BLACK)
             reset_button_rect = reset_button_text.get_rect()
             reset_button_rect.center = reset_button.center
             pygame.draw.rect(screen, WHITE, reset_button)
             screen.blit(reset_button_text, reset_button_rect)
-            
 
             # Draw the board
             draw_board(cells, board_origin, cell_size, screen, grid)
@@ -259,12 +253,12 @@ def main():
 
             if left == 1:
                 mouse = pygame.mouse.get_pos()
-                
+
                 # If search button is clicked, start the search
                 if search_button.collidepoint(mouse):
                     barriers = False
                     time.sleep(0.3)
-                    
+
                 elif reset_button.collidepoint(mouse):
 
                     # Re-initialise all the variables
@@ -285,20 +279,24 @@ def main():
                                 else:
                                     # Marks the node as an obstruction
                                     node.obstruction = True
-        
+
         # Show search
         elif search:
-            
+
             # Write instructions
             instruction = medium_font.render("Searching...", True, WHITE)
             instruction_rect = instruction.get_rect()
             instruction_rect.center = ((width / 2), 50)
             screen.blit(instruction, instruction_rect)
 
-            algos = {'A* search': grid.asearch, "Djikstra's": grid.djikstra, 
-                     'Greedy': grid.greedy, 'Breadth First Search': grid.bfs, 
-                     'Depth First Search': grid.dfs}
-            
+            algos = {
+                "A* search": grid.asearch,
+                "Djikstra's": grid.djikstra,
+                "Greedy": grid.greedy,
+                "Breadth First Search": grid.bfs,
+                "Depth First Search": grid.dfs,
+            }
+
             # Start algorithm search depending on input
             algo = algorithms[algorithm.lower()]
 
@@ -309,10 +307,9 @@ def main():
             else:
                 search = False
 
-
         # Once the node has been found
         elif found and grid.open:
-            
+
             # Write instructions
             instruction = medium_font.render("Path Found!", True, WHITE)
             instruction_rect = instruction.get_rect()
@@ -321,15 +318,14 @@ def main():
 
             # Reset button
             reset_button = pygame.Rect(
-                (width * (1 / 2)) + BOARD_PADDING + 30, 30,
-                100, 40 
+                (width * (1 / 2)) + BOARD_PADDING + 30, 30, 100, 40
             )
             reset_button_text = medium_font.render("Reset", True, BLACK)
             reset_button_rect = reset_button_text.get_rect()
             reset_button_rect.center = reset_button.center
             pygame.draw.rect(screen, WHITE, reset_button)
             screen.blit(reset_button_text, reset_button_rect)
-            
+
             # Draw the path
             grid.find_path()
 
@@ -363,8 +359,7 @@ def main():
 
             # Reset button
             reset_button = pygame.Rect(
-                (width * (1 / 2)) + BOARD_PADDING + 30, 30,
-                100, 40 
+                (width * (1 / 2)) + BOARD_PADDING + 30, 30, 100, 40
             )
             reset_button_text = medium_font.render("Reset", True, BLACK)
             reset_button_rect = reset_button_text.get_rect()
@@ -393,8 +388,8 @@ def main():
                     barriers = True
                     search = True
 
-
         pygame.display.flip()
 
-if __name__ == "__main__": 
+
+if __name__ == "__main__":
     main()

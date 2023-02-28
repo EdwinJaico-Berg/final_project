@@ -48,13 +48,11 @@ class Node:
     def __ne__(self, __o: object) -> bool:
         return not (self == __o)
 
-    def draw(
-        self, i: int, j: int, board_origin: int, cell_size: int, screen: pygame.Surface
-    ) -> None:
+    def draw(self, board_origin: int, cell_size: int, screen: pygame.Surface) -> None:
         """Method that draws the rect for each node."""
         self.rect = pygame.Rect(
-            board_origin[0] + j * cell_size,
-            board_origin[1] + i * cell_size,
+            board_origin[0] + self.j * cell_size,
+            board_origin[1] + self.i * cell_size,
             cell_size,
             cell_size,
         )
@@ -143,9 +141,7 @@ class Grid:
         """Updates the board and the colours of the rects"""
         for row in self.cells:
             for node in row:
-                i = node.i
-                j = node.j
-                node.draw(i, j, board_origin, cell_size, screen)
+                node.draw(board_origin, cell_size, screen)
 
                 if node.obstruction:
                     node.fill(screen, WHITE)
