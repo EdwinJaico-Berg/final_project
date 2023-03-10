@@ -27,8 +27,7 @@ class Node:
         self.g = 0.0
         self.h = 0.0
 
-        # Set distance
-        self.distance = np.Inf
+        self.distance = 0
 
         # Set the board parameters
         self.start = False
@@ -147,11 +146,6 @@ class Grid:
                 elif node in self.open:
                     node.fill(screen, GREEN)
 
-    def check_neighbour(self, neighbour: Node) -> bool:
-        for open_neighbour in self.open:
-            if neighbour == open_neighbour and neighbour.g > open_neighbour.g:
-                return True
-
     def asearch(self, board_origin, cell_size, screen, pin, flag) -> bool:
         """A* search algorithm."""
 
@@ -262,7 +256,9 @@ class Grid:
                     continue
 
                 # Calcualte the distance of the neighbours
-                neighbour.distance = current.distance + self.weight(current, neighbour)
+                neighbour.distance = current.distance + dist(
+                    current.coords(), neighbour.coords()
+                )
 
             # Draw the board
             self.draw_board(board_origin, cell_size, screen, pin, flag)
