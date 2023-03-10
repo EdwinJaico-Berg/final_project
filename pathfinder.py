@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from collections import deque
+from math import dist
 
 from utils import flatten
 
@@ -62,6 +62,9 @@ class Node:
         """Fills the rect of the node with a certain colour."""
         pygame.draw.rect(screen, colour, self.rect)
 
+    def coords(self):
+        return (self.i, self.j)
+
 
 class Grid:
     """The grid, constructed of Node objects, that the visualiser will traverse."""
@@ -115,16 +118,6 @@ class Grid:
                         neighbours.append(neighbour)
 
         return neighbours
-
-    def a_heuristics(self, parent: Node, node: Node) -> None:
-        """
-        Calculates the g, h, and f values for a node using Eucliadian distance. The g value calculates
-        the distance from the starting node to the current node. The h value calculates the distance from
-        the starting node to the end node. The f value combines these two for the final cost of the move.
-        """
-        node.g = (parent.i - node.i) ** 2 + (parent.j - node.j) ** 2
-        node.h = (self.end.i - node.i) ** 2 + (self.end.j - node.j) ** 2
-        node.f = node.g + node.h
 
     def g_heuristic(self, node: Node) -> None:
         """
@@ -196,17 +189,25 @@ class Grid:
                 if neighbour in self.closed:
                     continue
 
-                # Check if neighbour already on the open list
-                if self.check_neighbour(neighbour):
-                    continue
+                tentative_g_score = current.g + dist(
+                    current.coords(), neighbour.coords()
+                )
 
-                # Calculate the heuristic values
-                self.a_heuristics(current, neighbour)
+                if neighbour not in self.open:
 
-                self.open.append(neighbour)
+                    self.open.append(neighbour)
+                    h = dist(neighbour.coords(), self.end.coords())
+                    neighbour.f = tentative_g_score + h
+                    neighbour.g = tentative_g_score
 
-                # Assign parent
-                neighbour.parent = current
+                    # Assign parent
+                    neighbour.parent = current
+
+                elif tentative_g_score < neighbour.g:
+                    neighbour.g = tentative_g_score
+                    neighbour.f = tentative_g_score + dist(
+                        neighbour.coords(), self.end.coords()
+                    )
 
             # Draw the board
             self.draw_board(board_origin, cell_size, screen, pin, flag)
