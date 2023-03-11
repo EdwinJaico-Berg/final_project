@@ -1,13 +1,10 @@
 import pygame
 import numpy as np
+import heapq
+
 from math import dist
-
 from utils import flatten
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
+from settings import *
 
 
 class Node:
@@ -27,8 +24,6 @@ class Node:
         self.g = 0.0
         self.h = 0.0
 
-        self.distance = 0
-
         # Set the board parameters
         self.start = False
         self.end = False
@@ -41,11 +36,18 @@ class Node:
         # Give the node a rect variable so that it can interact
         self.rect = None
 
-    def __eq__(self, __o: object) -> bool:
+    def __eq__(self, __o) -> bool:
         return (self.i == __o.i) and (self.j == __o.j)
 
-    def __ne__(self, __o: object) -> bool:
+    def __ne__(self, __o) -> bool:
         return not (self == __o)
+
+    # Created only for Djikstra implementation
+    def __lt__(self, __o) -> bool:
+        return True
+
+    def __hash__(self) -> int:
+        return hash((self.i, self.j))
 
     def draw(self, board_origin: int, cell_size: int, screen: pygame.Surface) -> None:
         """Method that draws the rect for each node."""
@@ -68,11 +70,17 @@ class Node:
 class Grid:
     """The grid, constructed of Node objects, that the visualiser will traverse."""
 
-    def __init__(self, height: int = 25, width: int = 40):
+    def __init__(self, height, width, board_origin, cell_size, pin, flag):
 
         # Set the variables for the board
         self.height = height
         self.width = width
+
+        self.board_origin = board_origin
+        self.cell_size = cell_size
+        self.screen = pygame.display.get_surface()
+        self.pin = pin
+        self.flag = flag
 
         # Create the grid
         self.cells = []
@@ -129,24 +137,24 @@ class Grid:
         """Returns the euclidean distance between two nodes"""
         return np.sqrt((parent.i - child.i) ** 2 + (parent.j - child.j) ** 2)
 
-    def draw_board(self, board_origin, cell_size, screen, pin, flag) -> None:
+    def draw_board(self) -> None:
         """Updates the board and the colours of the rects"""
         for row in self.cells:
             for node in row:
-                node.draw(board_origin, cell_size, screen)
+                node.draw(self.board_origin, self.cell_size, self.screen)
 
                 if node.obstruction:
-                    node.fill(screen, WHITE)
+                    node.fill(self.screen, WHITE)
                 elif node.start:
-                    screen.blit(pin, node.rect)
+                    self.screen.blit(self.pin, node.rect)
                 elif node.end:
-                    screen.blit(flag, node.rect)
+                    self.screen.blit(self.flag, node.rect)
                 elif node in self.closed:
-                    node.fill(screen, RED)
+                    node.fill(self.screen, RED)
                 elif node in self.open:
-                    node.fill(screen, GREEN)
+                    node.fill(self.screen, GREEN)
 
-    def asearch(self, board_origin, cell_size, screen, pin, flag) -> bool:
+    def asearch(self) -> bool:
         """A* search algorithm."""
 
         # Append the starting node to the open list
@@ -204,65 +212,46 @@ class Grid:
                     )
 
             # Draw the board
-            self.draw_board(board_origin, cell_size, screen, pin, flag)
+            self.draw_board()
 
             pygame.display.update()
 
         # If open no longer has nodes
         return False
 
-    def djikstra(self, board_origin, cell_size, screen, pin, flag):
+    def djikstra(self):
         """Djikstra's algorithm."""
+        distances = {node: float("inf") for node in flatten(self.cells)}
+        distances[self.start] = 0
         visited = self.closed
-        queue = self.open = flatten(self.cells)
 
-        # Set the distances of the start node to 0
-        self.start.distance = 0
+        # Use a priority queue to keep track of the next node to vist
+        queue = [(0, self.start)]
 
-        # Initiate loop
         while queue:
+            # Get the node with the smallest distance from the start node
+            current_distance, current_node = heapq.heappop(queue)
 
-            # Find the node with the shortest distance
-            current = queue[0]
-            current_index = 0
-            for index, node in enumerate(queue):
-                if node.distance < current.distance:
-                    current = node
-                    current_index = index
+            # Skip ndoes that have already been visited
+            if current_node in visited:
+                continue
 
-            # Remove current from the queue
-            queue.pop(current_index)
+            # Mark the current node as visited
+            visited.append(current_node)
 
-            # Append it to the visited
-            visited.append(current)
-
-            # Check current node is the goal
-            if current == self.end:
-
-                # Break while loop
+            # Check if reached end
+            if current_node == self.end:
                 return True
 
-            # Generate the neighbours
-            neighbours = self.get_neigbours(current)
+            for neighbour in self.get_neigbours(current_node):
+                distance = dist(self.end.coords(), neighbour.coords())
+                new_distance = current_distance + distance
+                if new_distance < distances[neighbour]:
+                    neighbour.parent = current_node
+                    distances[neighbour] = new_distance
+                    heapq.heappush(queue, (new_distance, neighbour))
 
-            for neighbour in neighbours:
-
-                # Assign parent
-                if not neighbour.parent:
-                    neighbour.parent = current
-
-                # Check neighbour has not been visited
-                if neighbour in visited:
-                    continue
-
-                # Calcualte the distance of the neighbours
-                neighbour.distance = current.distance + dist(
-                    current.coords(), neighbour.coords()
-                )
-
-            # Draw the board
-            self.draw_board(board_origin, cell_size, screen, pin, flag)
-
+            self.draw_board()
             pygame.display.update()
 
         # Search unsuccessful
@@ -308,14 +297,14 @@ class Grid:
                         queue.append(neighbour)
 
             # Draw the board
-            self.draw_board(board_origin, cell_size, screen, pin, flag)
+            self.draw_board()
 
             pygame.display.update()
 
         # Search unsuccessful
         return False
 
-    def dfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
+    def dfs(self) -> bool:
         """
         Depth-First Search where the set of visited is self.closed
         and the stack is self.open
@@ -356,14 +345,14 @@ class Grid:
                         stack.append(neighbour)
 
             # Draw the board
-            self.draw_board(board_origin, cell_size, screen, pin, flag)
+            self.draw_board()
 
             pygame.display.update()
 
         # Search unsucessful
         return False
 
-    def greedy(self, board_origin, cell_size, screen, pin, flag) -> bool:
+    def greedy(self) -> bool:
         """
         Greedy pathfinding algorithm that uses self.open and self.closed
         as the two main lists
@@ -418,7 +407,7 @@ class Grid:
                     continue
 
             # Draw the board
-            self.draw_board(board_origin, cell_size, screen, pin, flag)
+            self.draw_board()
 
             pygame.display.update()
 

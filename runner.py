@@ -3,23 +3,14 @@ import time
 import pygame
 import numpy as np
 
-from pathfinder import Node, Grid
+from settings import *
+from pathfinder import Grid
 
 
 def main():
 
     # Initialise algorithm variables
     algorithm = None
-    algorithms = {
-        "asearch": "A* search",
-        "astar": "A* search",
-        "djikstra": "Djikstra's",
-        "bfs": "Breadth First Search",
-        "dfs": "Depth First Search",
-        "breadth first search": "Breadth First Search",
-        "depth first search": "Depth First Search",
-        "greedy": "Greedy",
-    }
 
     # Check usage
     if len(sys.argv) in [2, 3]:
@@ -32,26 +23,16 @@ def main():
     else:
 
         # Use a* as default algorithm but print usage
-        algorithm = "astar"
+        algorithm = "asearch"
         print("------------------------------------------------")
         print("Suggested Usage: python runner.py algorithm maze")
         print("------------------------------------------------")
-
-    # Initialise variables
-    HEIGHT = 25
-    WIDTH = 40
-    BLACK = (0, 0, 0)
-    WHITE = (255, 255, 255)
-    GREEN = (0, 255, 0)
-    RED = (255, 0, 0)
-    BLUE = (0, 0, 255)
 
     # Create game
     pygame.init()
     pygame.display.set_caption("Pathfinder")
     icon = pygame.image.load("assets/images/icon.png")
     pygame.display.set_icon(icon)
-    size = width, height = 600, 500
     screen = pygame.display.set_mode(size)
 
     # Fonts
@@ -60,13 +41,6 @@ def main():
     medium_font = pygame.font.Font(WALKWAY, 28)
     large_font = pygame.font.Font(WALKWAY, 40)
 
-    # Compute board size
-    BOARD_PADDING = 20
-    board_width = width - (BOARD_PADDING * 2)
-    board_height = height - (BOARD_PADDING * 2)
-    cell_size = int(min(board_width / WIDTH, board_height / HEIGHT))
-    board_origin = (BOARD_PADDING, BOARD_PADDING + 100)
-
     # Add the flag (end) and pin (start) image
     pin = pygame.image.load("assets/images/pin.jpeg")
     pin = pygame.transform.scale(pin, (cell_size - 2, cell_size - 2))
@@ -74,9 +48,8 @@ def main():
     flag = pygame.transform.scale(flag, (cell_size - 2, cell_size - 2))
 
     # Initialise the grid
-    grid = Grid(HEIGHT, WIDTH)
+    grid = Grid(HEIGHT, WIDTH, board_origin, cell_size, pin, flag)
     cells = grid.cells
-
     mask = None
 
     # Generate maze if asked
@@ -173,7 +146,7 @@ def main():
             screen.blit(instruction, instruction_rect)
 
             # Draw the board
-            draw_board(cells, board_origin, cell_size, screen, grid)
+            grid.draw_board()
 
             # Add start node
             left, _, _ = pygame.mouse.get_pressed()
@@ -183,7 +156,7 @@ def main():
                 for i in range(HEIGHT):
                     for j in range(WIDTH):
                         node = cells[i][j]
-                        if node.rect.collidepoint(mouse):
+                        if node.rect.collidepoint(mouse) and not node.obstruction:
                             # Marks the node as start
                             node.start = True
                             grid.start = node
@@ -210,7 +183,7 @@ def main():
                 for i in range(HEIGHT):
                     for j in range(WIDTH):
                         node = cells[i][j]
-                        if node.rect.collidepoint(mouse):
+                        if node.rect.collidepoint(mouse) and not node.obstruction:
                             # Marks the node as start
                             if not node.start:
                                 node.end = True
@@ -262,7 +235,7 @@ def main():
                 elif reset_button.collidepoint(mouse):
 
                     # Re-initialise all the variables
-                    grid = Grid(HEIGHT, WIDTH)
+                    grid = Grid(HEIGHT, WIDTH, board_origin, cell_size, pin, flag)
                     if mask is not None:
                         grid.generate_maze(mask)
                     cells = grid.cells
@@ -300,7 +273,7 @@ def main():
             # Start algorithm search depending on input
             algo = algorithms[algorithm.lower()]
 
-            if algos[algo](board_origin, cell_size, screen, pin, flag):
+            if algos[algo]():
                 found = True
                 path = True
                 search = False
@@ -308,7 +281,7 @@ def main():
                 search = False
 
         # Once the node has been found
-        elif found and grid.open:
+        elif found:
 
             # Write instructions
             instruction = medium_font.render("Path Found!", True, WHITE)
@@ -341,7 +314,7 @@ def main():
                 if reset_button.collidepoint(mouse):
 
                     # Re-initialise all the variables
-                    grid = Grid(HEIGHT, WIDTH)
+                    grid = Grid(HEIGHT, WIDTH, board_origin, cell_size, pin, flag)
                     if mask is not None:
                         grid.generate_maze(mask)
                     cells = grid.cells
@@ -379,7 +352,7 @@ def main():
                 if reset_button.collidepoint(mouse):
 
                     # Re-initialise all the variables
-                    grid = Grid(HEIGHT, WIDTH)
+                    grid = Grid(HEIGHT, WIDTH, board_origin, cell_size, pin, flag)
                     cells = grid.cells
                     if mask is not None:
                         grid.generate_maze(mask)
