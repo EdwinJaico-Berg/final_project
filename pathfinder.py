@@ -133,10 +133,6 @@ class Grid:
         """
         node.h = abs(node.i - self.end.i) + abs(node.j - self.end.j)
 
-    def weight(self, parent: Node, child: Node) -> float:
-        """Returns the euclidean distance between two nodes"""
-        return np.sqrt((parent.i - child.i) ** 2 + (parent.j - child.j) ** 2)
-
     def draw_board(self) -> None:
         """Updates the board and the colours of the rects"""
         for row in self.cells:
@@ -219,11 +215,10 @@ class Grid:
         # If open no longer has nodes
         return False
 
-    def djikstra(self):
+    def djikstra(self) -> bool:
         """Djikstra's algorithm."""
         distances = {node: float("inf") for node in flatten(self.cells)}
         distances[self.start] = 0
-        visited = self.closed
 
         # Use a priority queue to keep track of the next node to vist
         queue = [(0, self.start)]
@@ -233,17 +228,19 @@ class Grid:
             current_distance, current_node = heapq.heappop(queue)
 
             # Skip ndoes that have already been visited
-            if current_node in visited:
+            if current_node in self.closed:
                 continue
 
             # Mark the current node as visited
-            visited.append(current_node)
+            self.closed.append(current_node)
 
             # Check if reached end
             if current_node == self.end:
                 return True
 
             for neighbour in self.get_neigbours(current_node):
+                if neighbour not in self.open:
+                    self.open.append(neighbour)
                 distance = dist(self.end.coords(), neighbour.coords())
                 new_distance = current_distance + distance
                 if new_distance < distances[neighbour]:
@@ -257,7 +254,7 @@ class Grid:
         # Search unsuccessful
         return False
 
-    def bfs(self, board_origin, cell_size, screen, pin, flag) -> bool:
+    def bfs(self) -> bool:
         """
         Breadth first search algorithm, using the open and closed list
         as the queue and visited list
@@ -291,17 +288,13 @@ class Grid:
                     # Check if it's the goal node
                     if neighbour == self.end:
                         return True
-
-                    # Else append it to the queue
                     else:
                         queue.append(neighbour)
 
-            # Draw the board
             self.draw_board()
 
             pygame.display.update()
 
-        # Search unsuccessful
         return False
 
     def dfs(self) -> bool:
@@ -326,21 +319,14 @@ class Grid:
             if current not in visited:
                 visited.append(current)
 
-            # Generate the neighbours of the node
-            neighbours = self.get_neigbours(current)
-
-            for neighbour in neighbours:
+            for neighbour in self.get_neigbours(current):
 
                 if not neighbour.parent:
                     neighbour.parent = current
 
-                # Check the node is not in visited
                 if neighbour not in visited:
-
-                    # Check the node is the end
                     if neighbour == self.end:
                         return True
-
                     else:
                         stack.append(neighbour)
 
@@ -375,7 +361,6 @@ class Grid:
                     current = node
                     current_idx = index
 
-            # Remove this node from the open list
             current = self.open.pop(current_idx)
 
             # Check whether current node is the end
@@ -385,25 +370,14 @@ class Grid:
             # Append current node to the closed list
             self.closed.append(current)
 
-            # Generate the neighbours of the current node
-            neighbours = self.get_neigbours(current)
-
-            for neighbour in neighbours:
-
-                # Calculate the heuristic value for the neighbour
+            for neighbour in self.get_neigbours(current):
                 self.g_heuristic(neighbour)
 
-                # Set the parent
                 if neighbour not in self.closed and neighbour not in self.open:
-
-                    # Set the parent
                     neighbour.parent = current
-
-                    # Add the neighbour to the open list
                     self.open.append(neighbour)
 
                 elif neighbour in self.open:
-
                     continue
 
             # Draw the board
